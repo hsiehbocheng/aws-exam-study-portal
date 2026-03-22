@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AWS AIP-C01 Quiz</title>
+    <style>
+        :root {
+            --bg: #f0f4f8;
+            --white: #ffffff;
+            --primary: #2563eb;
+            --primary-light: #dbeafe;
+            --primary-hover: #1d4ed8;
+            --text: #1e293b;
+            --text2: #64748b;
+            --text3: #94a3b8;
+            --border: #e2e8f0;
+            --success: #16a34a;
+            --success-bg: #f0fdf4;
+            --danger: #dc2626;
+            --danger-bg: #fef2f2;
+            --warning: #d97706;
+            --warning-bg: #fffbeb;
+            --star: #eab308;
+            --star-bg: #fefce8;
+            --tw-color: #7c3aed;
+            --tw-bg: #f5f3ff;
+            --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-lg: 0 10px 30px rgba(0,0,0,0.1);
+            --radius: 12px;
+            --radius-sm: 8px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; min-height: 100vh; }
+        .container { max-width: 800px; margin: 0 auto; padding: 24px 20px; }
+        .header { background: var(--white); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+        .header-inner { max-width: 800px; margin: 0 auto; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; height: 56px; }
+        .logo { font-size: 1.1rem; font-weight: 700; color: var(--text); cursor: pointer; display: flex; align-items: center; gap: 8px; }
+        .logo-badge { background: var(--primary); color: white; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.5px; }
+        .header-nav { display: flex; gap: 4px; }
+        .header-link { padding: 6px 16px; border-radius: 20px; border: none; background: transparent; color: var(--text2); font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+        .header-link:hover { color: var(--text); background: var(--bg); }
+        .header-link.active { color: var(--primary); background: var(--primary-light); font-weight: 600; }
+        .panel { display: none; }
+        .panel.active { display: block; }
+
+        /* Home */
+        .home-hero { text-align: center; padding: 60px 20px 40px; }
+        .home-hero h1 { font-size: 2rem; font-weight: 800; margin-bottom: 8px; }
+        .home-hero h1 span { color: var(--primary); }
+        .home-hero p { color: var(--text2); font-size: 1rem; margin-bottom: 40px; }
+        .home-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; max-width: 640px; margin: 0 auto; }
+        .home-card { background: var(--white); border-radius: var(--radius); padding: 36px 28px; text-align: center; border: 2px solid var(--border); cursor: pointer; transition: all 0.25s; }
+        .home-card:hover { border-color: var(--primary); box-shadow: var(--shadow-lg); transform: translateY(-2px); }
+        .home-card-icon { width: 56px; height: 56px; border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 1.6rem; }
+        .home-card-icon.study { background: var(--primary-light); }
+        .home-card-icon.exam { background: #fef3c7; }
+        .home-card h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 8px; }
+        .home-card p { font-size: 0.85rem; color: var(--text2); line-height: 1.5; }
+        .home-stats { display: flex; justify-content: center; gap: 40px; margin-top: 48px; padding-top: 32px; border-top: 1px solid var(--border); }
+        .home-stat { text-align: center; }
+        .home-stat-val { font-size: 1.8rem; font-weight: 800; color: var(--primary); }
+        .home-stat-label { font-size: 0.8rem; color: var(--text2); margin-top: 2px; }
+
+        /* Question Card */
+        .question-card { background: var(--white); border-radius: var(--radius); padding: 32px; margin-bottom: 20px; box-shadow: var(--shadow); }
+        .question-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+        .question-title { font-size: 1.2rem; font-weight: 800; }
+        .question-meta { display: flex; gap: 8px; align-items: center; }
+        .icon-btn { width: 36px; height: 36px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--white); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; transition: all 0.2s; color: var(--text3); }
+        .icon-btn:hover { border-color: var(--text2); color: var(--text); }
+        .icon-btn.star-active { border-color: var(--star); color: var(--star); background: var(--star-bg); }
+        .icon-btn.copied { border-color: var(--success); color: var(--success); background: var(--success-bg); }
+        .tw-btn { padding: 6px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--white); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s; color: var(--text2); }
+        .tw-btn:hover { border-color: var(--tw-color); color: var(--tw-color); }
+        .tw-btn.active { border-color: var(--tw-color); color: var(--tw-color); background: var(--tw-bg); }
+        .question-text { font-size: 0.95rem; line-height: 1.8; margin-bottom: 24px; }
+        .tw-text { color: var(--tw-color); margin-top: 10px; padding: 10px 14px; background: var(--tw-bg); border-radius: var(--radius-sm); font-size: 0.9rem; line-height: 1.7; display: none; }
+        .tw-text.show { display: block; }
+
+        /* Show/Hide Answer Toggle */
+        .answer-toggle { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; padding: 10px 16px; background: var(--bg); border-radius: var(--radius-sm); }
+        .answer-toggle-label { font-size: 0.82rem; color: var(--text2); font-weight: 600; }
+        .toggle-switch { position: relative; width: 44px; height: 24px; cursor: pointer; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider { position: absolute; inset: 0; background: var(--border); border-radius: 12px; transition: 0.2s; }
+        .toggle-slider::before { content: ''; position: absolute; width: 18px; height: 18px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.2s; }
+        .toggle-switch input:checked + .toggle-slider { background: var(--primary); }
+        .toggle-switch input:checked + .toggle-slider::before { transform: translateX(20px); }
+
+        /* Choices */
+        .choices-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+        .choice-item { padding: 16px 20px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--white); cursor: pointer; transition: all 0.2s; border-left: 4px solid transparent; position: relative; }
+        .choice-item.disabled { cursor: default; }
+        .choice-item:not(.disabled):hover { border-left-color: var(--primary); background: #f8faff; }
+        .choice-content { display: flex; align-items: flex-start; gap: 14px; }
+        .choice-letter { display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; min-width: 30px; border-radius: 8px; background: var(--bg); font-weight: 700; font-size: 0.85rem; color: var(--text2); }
+        .choice-text-wrap { flex: 1; font-size: 0.92rem; line-height: 1.6; }
+        .choice-item.correct { border-left-color: var(--primary); background: var(--primary-light); }
+        .choice-item.correct .choice-letter { background: var(--primary); color: white; }
+        .choice-item.wrong-pick { border-left-color: var(--danger); background: var(--danger-bg); }
+        .choice-item.wrong-pick .choice-letter { background: var(--danger); color: white; }
+        .choice-item.selected { border-left-color: var(--primary); background: var(--primary-light); }
+        .choice-item.selected .choice-letter { background: var(--primary); color: white; }
+        .choice-tag { font-size: 0.72rem; font-weight: 700; margin-left: 8px; white-space: nowrap; }
+        .choice-tag.tag-correct { color: var(--primary); }
+        .choice-tag.tag-incorrect { color: var(--danger); }
+        .choice-analysis { margin-top: 8px; font-size: 0.82rem; color: var(--text2); font-style: italic; line-height: 1.5; }
+        .answer-diff-tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; background: var(--warning-bg); color: var(--warning); border: 1px solid rgba(217,119,6,0.2); margin-bottom: 12px; }
+        .override-tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; background: #eff6ff; color: #1d4ed8; border: 1px solid rgba(37,99,235,0.2); margin-bottom: 12px; }
+        .override-editor { margin-top: 16px; padding: 16px; background: var(--bg); border-radius: var(--radius-sm); border: 1px solid var(--border); }
+        .override-editor-title { font-size: 0.82rem; font-weight: 700; color: var(--text); margin-bottom: 10px; }
+        .override-choices { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+        .override-choice-btn { padding: 6px 16px; border-radius: 6px; border: 2px solid var(--border); background: var(--white); font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.15s; color: var(--text2); }
+        .override-choice-btn:hover { border-color: var(--primary); }
+        .override-choice-btn.active { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
+        .override-actions { display: flex; gap: 8px; align-items: center; }
+        .override-actions .btn { padding: 6px 16px; font-size: 0.82rem; }
+        .explanation { margin-top: 24px; padding: 20px; background: #f8fafc; border-radius: var(--radius-sm); border: 1px solid var(--border); }
+        .explanation-title { font-size: 0.85rem; font-weight: 700; color: var(--primary); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .explanation p { font-size: 0.88rem; color: var(--text2); line-height: 1.7; }
+
+        /* Notes */
+        .note-section { margin-top: 20px; }
+        .note-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+        .note-label { font-size: 0.82rem; font-weight: 600; color: var(--text2); }
+        .note-saved { font-size: 0.75rem; color: var(--success); opacity: 0; transition: opacity 0.3s; }
+        .note-saved.show { opacity: 1; }
+        .note-textarea { width: 100%; min-height: 80px; padding: 12px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-family: inherit; font-size: 0.88rem; line-height: 1.6; resize: vertical; background: var(--white); color: var(--text); }
+        .note-textarea:focus { outline: none; border-color: var(--primary); }
+
+        /* Toolbar */
+        .toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; }
+        .toolbar-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .toolbar-right { display: flex; align-items: center; gap: 8px; }
+        .chip { padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); background: var(--white); color: var(--text2); font-size: 0.82rem; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+        .chip:hover { border-color: var(--text2); }
+        .chip.active { border-color: var(--star); color: var(--star); background: var(--star-bg); }
+        .chip-tw.active { border-color: var(--tw-color); color: var(--tw-color); background: var(--tw-bg); }
+        .progress-text { font-size: 0.85rem; color: var(--text2); font-weight: 500; }
+        .jump-group { display: flex; align-items: center; gap: 6px; }
+        .jump-input { width: 56px; padding: 6px 8px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--white); color: var(--text); font-size: 0.85rem; text-align: center; }
+        .jump-input:focus { outline: none; border-color: var(--primary); }
+
+        /* Buttons */
+        .nav-buttons { display: flex; justify-content: space-between; gap: 12px; margin-top: 20px; }
+        .btn { padding: 10px 24px; border-radius: var(--radius-sm); border: none; font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+        .btn-outline { background: var(--white); border: 1px solid var(--border); color: var(--text2); }
+        .btn-outline:hover { border-color: var(--text); color: var(--text); }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-danger:hover { background: #b91c1c; }
+        .btn-ghost { background: none; border: none; color: var(--primary); cursor: pointer; font-size: 0.85rem; font-weight: 500; }
+        .btn-ghost:hover { text-decoration: underline; }
+        .link-ext { color: var(--primary); text-decoration: none; font-size: 0.82rem; font-weight: 500; }
+        .link-ext:hover { text-decoration: underline; }
+
+        /* Exam */
+        .exam-bar { background: var(--white); padding: 14px 20px; border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 57px; z-index: 50; }
+        .exam-indicator { font-size: 0.88rem; color: var(--text2); font-weight: 500; }
+        .exam-progress-bar { flex: 1; height: 4px; background: var(--border); border-radius: 2px; margin: 0 20px; }
+        .exam-progress-fill { height: 100%; background: var(--primary); border-radius: 2px; transition: width 0.3s; }
+        .timer { font-size: 1.2rem; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--text); }
+        .timer.warning { color: var(--warning); }
+        .timer.danger { color: var(--danger); animation: pulse 1s infinite; }
+        @keyframes pulse { 50% { opacity: 0.5; } }
+        .multi-select-hint { font-size: 0.85rem; color: var(--warning); padding: 8px 14px; background: var(--warning-bg); border-radius: var(--radius-sm); margin-bottom: 14px; border: 1px solid rgba(217, 119, 6, 0.15); font-weight: 500; }
+        .q-nav-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); gap: 6px; margin-bottom: 20px; }
+        .q-nav-btn { aspect-ratio: 1; border: 1px solid var(--border); border-radius: 6px; background: var(--white); color: var(--text2); font-size: 0.78rem; font-weight: 500; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; justify-content: center; }
+        .q-nav-btn:hover { border-color: var(--primary); }
+        .q-nav-btn.current { border-color: var(--primary); background: var(--primary-light); color: var(--primary); font-weight: 700; }
+        .q-nav-btn.answered { background: var(--bg); color: var(--text); border-color: var(--text3); }
+        .exam-start { background: var(--white); border-radius: var(--radius); padding: 48px 36px; text-align: center; max-width: 480px; margin: 48px auto; box-shadow: var(--shadow-md); }
+        .exam-start h2 { font-size: 1.5rem; font-weight: 800; margin-bottom: 8px; }
+        .exam-start p { color: var(--text2); margin-bottom: 28px; line-height: 1.6; }
+        .exam-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 28px; }
+        .exam-info-item { padding: 16px; background: var(--bg); border-radius: var(--radius-sm); }
+        .exam-info-val { font-size: 1.4rem; font-weight: 800; color: var(--primary); }
+        .exam-info-label { font-size: 0.78rem; color: var(--text2); margin-top: 2px; }
+
+        /* Results */
+        .results-card { background: var(--white); border-radius: var(--radius); padding: 40px; box-shadow: var(--shadow); text-align: center; margin-bottom: 24px; }
+        .results-card h2 { font-size: 1.3rem; font-weight: 700; color: var(--text2); margin-bottom: 8px; }
+        .score-big { font-size: 3.5rem; font-weight: 900; margin: 12px 0; }
+        .score-big.pass { color: var(--success); }
+        .score-big.fail { color: var(--danger); }
+        .badge { display: inline-block; padding: 4px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; }
+        .badge-pass { background: var(--success-bg); color: var(--success); }
+        .badge-fail { background: var(--danger-bg); color: var(--danger); }
+        .stats-row { display: flex; justify-content: center; gap: 40px; margin-top: 20px; flex-wrap: wrap; }
+        .stat-item { text-align: center; }
+        .stat-value { font-size: 1.4rem; font-weight: 700; }
+        .stat-label { font-size: 0.78rem; color: var(--text2); margin-top: 2px; }
+
+        /* Review card */
+        .review-card { background: var(--white); border-radius: var(--radius); padding: 24px; margin-bottom: 16px; box-shadow: var(--shadow); text-align: left; }
+        .review-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; gap: 8px; }
+        .review-card-left { display: flex; align-items: center; gap: 10px; }
+        .review-q-num { font-size: 0.9rem; font-weight: 700; }
+        .review-result-badge { display: inline-block; padding: 2px 10px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; }
+        .review-result-badge.wrong { background: var(--danger-bg); color: var(--danger); }
+        .review-result-badge.correct { background: var(--success-bg); color: var(--success); }
+        .review-choice { padding: 12px 16px; border-radius: var(--radius-sm); border: 1px solid var(--border); margin-bottom: 8px; display: flex; align-items: flex-start; gap: 12px; font-size: 0.88rem; line-height: 1.6; border-left: 4px solid transparent; }
+        .review-choice.is-correct { border-left-color: var(--primary); background: var(--primary-light); }
+        .review-choice.is-wrong-pick { border-left-color: var(--danger); background: var(--danger-bg); }
+        .review-choice.is-correct .choice-letter { background: var(--primary); color: white; }
+        .review-choice.is-wrong-pick .choice-letter { background: var(--danger); color: white; }
+        .review-choice-tag { font-size: 0.72rem; font-weight: 700; margin-left: 8px; white-space: nowrap; }
+        .review-choice-tag.correct-tag { color: var(--primary); }
+        .review-choice-tag.wrong-tag { color: var(--danger); }
+
+        /* List View */
+        .list-toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
+        .list-filters { display: flex; gap: 8px; flex-wrap: wrap; }
+        .pagination { display: flex; align-items: center; gap: 8px; }
+        .pagination-info { font-size: 0.82rem; color: var(--text2); }
+        .page-btn { width: 32px; height: 32px; border: 1px solid var(--border); border-radius: 6px; background: var(--white); color: var(--text2); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.82rem; transition: all 0.15s; }
+        .page-btn:hover { border-color: var(--primary); }
+        .page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .page-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        .list-item { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 6px; overflow: hidden; transition: box-shadow 0.2s; }
+        .list-item.expanded { box-shadow: var(--shadow-md); }
+        .list-item-row { display: flex; align-items: center; gap: 12px; padding: 12px 16px; cursor: pointer; transition: background 0.15s; }
+        .list-item-row:hover { background: #fafbfc; }
+        .list-q-num { font-size: 0.82rem; font-weight: 700; color: var(--text2); min-width: 32px; }
+        .list-q-text { flex: 1; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
+        .list-status { font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 4px; white-space: nowrap; }
+        .list-status.correct { background: var(--success-bg); color: var(--success); }
+        .list-status.incorrect { background: var(--danger-bg); color: var(--danger); }
+        .list-status.unanswered { background: var(--bg); color: var(--text3); }
+        .list-star { color: var(--star); font-size: 0.85rem; }
+        .list-expand-icon { color: var(--text3); font-size: 0.8rem; transition: transform 0.2s; }
+        .list-item.expanded .list-expand-icon { transform: rotate(180deg); }
+        .list-detail { padding: 0 16px 20px; display: none; }
+        .list-item.expanded .list-detail { display: block; }
+
+        /* History */
+        .history-table { width: 100%; border-collapse: collapse; background: var(--white); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+        .history-table th, .history-table td { padding: 14px 18px; text-align: left; }
+        .history-table thead { background: var(--bg); }
+        .history-table th { font-size: 0.78rem; color: var(--text2); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .history-table td { font-size: 0.88rem; border-top: 1px solid var(--border); }
+        .history-table tr:hover td { background: #fafbfc; }
+
+        .loading { text-align: center; padding: 60px; color: var(--text2); }
+        .spinner { display: inline-block; width: 28px; height: 28px; border: 3px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.7s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @media (max-width: 640px) {
+            .container { padding: 16px 12px; }
+            .question-card { padding: 20px; }
+            .header-inner { padding: 0 12px; }
+            .home-cards { grid-template-columns: 1fr; }
+            .home-hero { padding: 40px 16px 24px; }
+            .exam-bar { flex-wrap: wrap; gap: 8px; }
+            .stats-row { gap: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="header-inner">
+        <div class="logo" onclick="goHome()"><span class="logo-badge">AWS</span> AIP-C01 Quiz</div>
+        <div class="header-nav" id="header-nav" style="display:none">
+            <button class="header-link" data-tab="study" onclick="switchTab('study')">Study</button>
+            <button class="header-link" data-tab="list" onclick="switchTab('list')">List</button>
+            <button class="header-link" data-tab="exam" onclick="switchTab('exam')">Exam</button>
+            <button class="header-link" data-tab="history" onclick="switchTab('history')">History</button>
+        </div>
+    </div>
+</div>
+
+<div id="panel-home" class="panel active">
+    <div class="container">
+        <div class="home-hero">
+            <h1><span>AWS AIP-C01</span><br>Practice Quiz</h1>
+            <p>AWS Certified AI Practitioner — 考題練習與模擬考試</p>
+            <div class="home-cards">
+                <div class="home-card" onclick="enterMode('study')">
+                    <div class="home-card-icon study">📖</div>
+                    <h3>Study Mode</h3>
+                    <p>依序學習每一題，作答後即時判斷，支援中英對照翻譯</p>
+                </div>
+                <div class="home-card" onclick="enterMode('exam')">
+                    <div class="home-card-icon exam">📝</div>
+                    <h3>Exam Mode</h3>
+                    <p>模擬真實考試，題目與選項隨機排列，180 分鐘計時</p>
+                </div>
+            </div>
+            <div class="home-stats">
+                <div class="home-stat"><div class="home-stat-val" id="home-total">—</div><div class="home-stat-label">Total Questions</div></div>
+                <div class="home-stat"><div class="home-stat-val" id="home-starred">0</div><div class="home-stat-label">Starred</div></div>
+                <div class="home-stat"><div class="home-stat-val" id="home-exams">—</div><div class="home-stat-label">Exams Taken</div></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Study -->
+<div id="panel-study" class="panel">
+    <div class="container">
+        <div class="toolbar">
+            <div class="toolbar-left">
+                <span class="progress-text" id="study-progress">Loading...</span>
+                <button class="chip" id="filter-starred" onclick="toggleStarredFilter()">★ Starred Only</button>
+                <button class="chip chip-tw" id="global-translate" onclick="toggleGlobalTranslate()">中文翻譯</button>
+            </div>
+            <div class="toolbar-right">
+                <div class="jump-group">
+                    <span style="font-size:0.82rem;color:var(--text2)">Go to #</span>
+                    <input type="number" class="jump-input" id="jump-input" min="1" onkeydown="if(event.key==='Enter')jumpToQuestion()">
+                    <button class="btn btn-outline" style="padding:6px 12px;font-size:0.82rem" onclick="jumpToQuestion()">Go</button>
+                </div>
+            </div>
+        </div>
+        <div id="study-content"><div class="loading"><div class="spinner"></div><p style="margin-top:12px">Loading...</p></div></div>
+        <div class="nav-buttons" id="study-nav" style="display:none">
+            <button class="btn btn-outline" id="btn-prev" onclick="studyNav(-1)">← Previous</button>
+            <button class="btn btn-primary" id="btn-next" onclick="studyNav(1)">Next →</button>
+        </div>
+    </div>
+</div>
+
+<!-- List View -->
+<div id="panel-list" class="panel">
+    <div class="container">
+        <div class="list-toolbar">
+            <div class="list-filters">
+                <button class="chip" id="list-filter-all" onclick="setListFilter('all')">All</button>
+                <button class="chip" id="list-filter-starred" onclick="setListFilter('starred')">★ Starred</button>
+                <button class="chip chip-tw" id="list-translate" onclick="toggleListTranslate()">中文翻譯</button>
+            </div>
+            <div class="pagination" id="list-pagination"></div>
+        </div>
+        <div id="list-content"><div class="loading"><div class="spinner"></div></div></div>
+    </div>
+</div>
+
+<!-- Exam -->
+<div id="panel-exam" class="panel">
+    <div class="container">
+        <div id="exam-start-view">
+            <div class="exam-start">
+                <h2>Exam Mode</h2>
+                <p>模擬真實考試環境，題目與選項順序隨機排列</p>
+                <div class="exam-info-grid">
+                    <div class="exam-info-item"><div class="exam-info-val" id="exam-total-q">85</div><div class="exam-info-label">Questions</div></div>
+                    <div class="exam-info-item"><div class="exam-info-val">180 min</div><div class="exam-info-label">Time Limit</div></div>
+                </div>
+                <button class="btn btn-primary" style="width:100%;padding:14px;font-size:1rem" onclick="startExam()">Start Exam</button>
+            </div>
+        </div>
+        <div id="exam-active-view" style="display:none">
+            <div class="exam-bar">
+                <span class="exam-indicator" id="exam-indicator">Q 1 / 85</span>
+                <div class="exam-progress-bar"><div class="exam-progress-fill" id="exam-progress-fill" style="width:0%"></div></div>
+                <div class="timer" id="exam-timer">03:00:00</div>
+            </div>
+            <div class="q-nav-grid" id="exam-nav-grid"></div>
+            <div id="exam-question-content" class="exam-mode"></div>
+            <div class="nav-buttons" style="margin-top:20px">
+                <button class="btn btn-outline" id="exam-prev" onclick="examNav(-1)">← Previous</button>
+                <button class="btn btn-danger" onclick="confirmSubmitExam()">Submit Exam</button>
+                <button class="btn btn-primary" id="exam-next" onclick="examNav(1)">Next →</button>
+            </div>
+        </div>
+        <div id="exam-results-view" style="display:none"></div>
+    </div>
+</div>
+
+<!-- History -->
+<div id="panel-history" class="panel">
+    <div class="container">
+        <h2 style="margin-bottom:20px;font-weight:700">Exam History</h2>
+        <div id="history-content"><div class="loading"><div class="spinner"></div></div></div>
+    </div>
+</div>
+
+<script>
+// ─── State ─────────────────────────────────────────────
+let questionList = [];
+let filteredIds = [];
+let currentStudyIdx = 0;
+let starredSet = new Set();
+let showStarredOnly = false;
+let showTranslation = false;
+let studyCurrentQ = null;
+let studyAnswerRevealed = false;
+let studyShowAnswer = false;
+let studySelectedChoices = [];
+
+let examData = null;
+let examId = null;
+let currentExamIdx = 0;
+let examAnswers = {};
+let examTimerInterval = null;
+let examTimeLeft = 180 * 60;
+
+let listAllQuestions = null;
+let listFilter = 'all';
+let listPage = 0;
+const LIST_PAGE_SIZE = 50;
+let listExpandedId = null;
+let listShowTranslation = false;
+let noteTimers = {};
+let overrideEditing = false;
+let overrideSelected = [];
+
+// ─── Init ──────────────────────────────────────────────
+async function init() {
+    const [qRes, sRes, hRes] = await Promise.all([
+        fetch('/api/questions'), fetch('/api/starred'), fetch('/api/exam/history'),
+    ]);
+    questionList = await qRes.json();
+    const starred = await sRes.json();
+    const history = await hRes.json();
+    starredSet = new Set(starred);
+    document.getElementById('home-total').textContent = questionList.length;
+    document.getElementById('home-starred').textContent = starred.length;
+    document.getElementById('home-exams').textContent = history.length;
+    document.getElementById('exam-total-q').textContent = questionList.length;
+    updateFilteredList();
+}
+
+function updateFilteredList() {
+    filteredIds = showStarredOnly
+        ? questionList.filter(q => starredSet.has(q.id)).map(q => q.id)
+        : questionList.map(q => q.id);
+    if (currentStudyIdx >= filteredIds.length) currentStudyIdx = 0;
+    updateStudyProgress();
+}
+
+function updateStudyProgress() {
+    const total = filteredIds.length;
+    document.getElementById('study-progress').textContent = `Question ${total > 0 ? currentStudyIdx + 1 : 0} / ${total}`;
+    document.getElementById('jump-input').max = total;
+}
+
+// ─── Navigation ────────────────────────────────────────
+function goHome() {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('panel-home').classList.add('active');
+    document.getElementById('header-nav').style.display = 'none';
+    document.querySelectorAll('.header-link').forEach(l => l.classList.remove('active'));
+}
+
+function enterMode(mode) {
+    document.getElementById('header-nav').style.display = 'flex';
+    switchTab(mode);
+}
+
+function switchTab(tab) {
+    document.querySelectorAll('.header-link').forEach(t => t.classList.remove('active'));
+    const l = document.querySelector(`[data-tab="${tab}"]`);
+    if (l) l.classList.add('active');
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById(`panel-${tab}`).classList.add('active');
+    if (tab === 'study') loadStudyQuestion();
+    if (tab === 'list') loadListView();
+    if (tab === 'history') loadHistory();
+}
+
+// ─── Study Mode ────────────────────────────────────────
+async function loadStudyQuestion() {
+    if (filteredIds.length === 0) {
+        document.getElementById('study-content').innerHTML = '<div class="loading"><p>No questions found.' + (showStarredOnly ? ' No starred questions yet.' : '') + '</p></div>';
+        document.getElementById('study-nav').style.display = 'none';
+        return;
+    }
+    const qid = filteredIds[currentStudyIdx];
+    const res = await fetch(`/api/questions/${qid}`);
+    studyCurrentQ = await res.json();
+    studySelectedChoices = [];
+    studyAnswerRevealed = false;
+    studyShowAnswer = false;
+    overrideEditing = false;
+    overrideSelected = [];
+    renderStudyQuestion();
+    document.getElementById('study-nav').style.display = 'flex';
+    document.getElementById('btn-prev').disabled = currentStudyIdx === 0;
+    document.getElementById('btn-next').disabled = currentStudyIdx >= filteredIds.length - 1;
+    updateStudyProgress();
+}
+
+function renderStudyQuestion() {
+    const q = studyCurrentQ;
+    if (!q) return;
+    const answerSet = new Set(q.answer);
+    const isMulti = q.answer.length > 1;
+    const letters = Object.keys(q.choices_en).sort();
+    const selectedSet = new Set(studySelectedChoices);
+    const revealed = studyAnswerRevealed || studyShowAnswer;
+
+    let choicesHtml = '';
+    for (const letter of letters) {
+        const isCorrectChoice = answerSet.has(letter);
+        const isSelected = selectedSet.has(letter);
+        const enText = q.choices_en[letter] || '';
+        const twText = q.choices_tw[letter] || '';
+        const analysisText = q.choice_analysis[letter] || '';
+
+        let cls = 'choice-item';
+        let tag = '';
+        if (revealed) {
+            cls += ' disabled';
+            if (isCorrectChoice) {
+                cls += ' correct';
+                if (isSelected) tag = '<span class="choice-tag tag-correct">Correct</span>';
+                else tag = '<span class="choice-tag tag-correct">Answer</span>';
+            } else if (isSelected) {
+                cls += ' wrong-pick';
+                tag = '<span class="choice-tag tag-incorrect">Incorrect</span>';
+            }
+        } else if (isSelected) {
+            cls += ' selected';
+        }
+
+        const clickable = !revealed;
+        const onclick = clickable ? `onclick="studySelectChoice('${letter}', ${isMulti})"` : '';
+
+        choicesHtml += `
+            <li class="${cls}" ${onclick}>
+                <div class="choice-content">
+                    <span class="choice-letter">${letter}</span>
+                    <div class="choice-text-wrap">
+                        <div>${escapeHtml(enText)}${tag}</div>
+                        <div class="tw-text ${showTranslation ? 'show' : ''}">${escapeHtml(twText)}</div>
+                        ${revealed && analysisText ? `<div class="choice-analysis">${escapeHtml(analysisText)}</div>` : ''}
+                    </div>
+                </div>
+            </li>`;
+    }
+
+    const origAns = q.original_answer || [];
+    const hasOverride = q.override !== null && q.override !== undefined;
+    const finalAns = hasOverride ? q.override.previous : q.answer;
+    const communityDiffers = origAns.length > 0 && JSON.stringify([...origAns].sort()) !== JSON.stringify([...finalAns].sort());
+
+    let answerTagsHtml = '';
+    if (revealed) {
+        if (communityDiffers) {
+            answerTagsHtml += `<div class="answer-diff-tag">⚠ Community: ${origAns.join(', ')} → Final: ${finalAns.join(', ')}</div>`;
+        }
+        if (hasOverride) {
+            answerTagsHtml += `<div class="override-tag">✏ User corrected: ${q.override.previous.join(', ')} → ${q.override.answer.join(', ')}</div>`;
+        }
+    }
+
+    let overrideEditorHtml = '';
+    if (revealed && overrideEditing) {
+        const ovLetters = Object.keys(q.choices_en).sort();
+        const ovSet = new Set(overrideSelected);
+        let btns = '';
+        for (const l of ovLetters) {
+            btns += `<button class="override-choice-btn ${ovSet.has(l) ? 'active' : ''}" onclick="toggleOverrideChoice('${l}')">${l}</button>`;
+        }
+        overrideEditorHtml = `
+            <div class="override-editor">
+                <div class="override-editor-title">Select correct answer(s):</div>
+                <div class="override-choices">${btns}</div>
+                <div class="override-actions">
+                    <button class="btn btn-primary" onclick="saveOverride(${q.id})">Save</button>
+                    <button class="btn btn-outline" onclick="cancelOverride()">Cancel</button>
+                    ${hasOverride ? `<button class="btn btn-danger" onclick="deleteOverride(${q.id})">Reset</button>` : ''}
+                </div>
+            </div>`;
+    }
+
+    const editBtn = revealed && !overrideEditing
+        ? `<button class="btn btn-outline" style="margin-top:12px;font-size:0.82rem;padding:6px 14px" onclick="startOverrideEdit()">✏ Edit Answer</button>`
+        : '';
+
+    const html = `
+        <div class="question-card">
+            <div class="question-header">
+                <div class="question-title">Question ${q.number}${isMulti ? ' <span style="font-size:0.8rem;color:var(--text2);font-weight:500">(Select ${q.answer.length})</span>' : ''}</div>
+                <div class="question-meta">
+                    <button class="icon-btn" onclick="copyQuestion(${q.id}, this)" title="Copy question">📋</button>
+                    <button class="icon-btn ${q.starred ? 'star-active' : ''}" onclick="toggleStar(${q.id}, this)" title="Star">${q.starred ? '★' : '☆'}</button>
+                    <button class="tw-btn ${showTranslation ? 'active' : ''}" onclick="toggleTranslation(this)">TW</button>
+                    ${q.link ? `<a href="${q.link}" target="_blank" class="link-ext">ExamTopics ↗</a>` : ''}
+                </div>
+            </div>
+            <div class="question-text">
+                <div>${escapeHtml(q.question_en)}</div>
+                <div class="tw-text ${showTranslation ? 'show' : ''}">${escapeHtml(q.question_tw || '')}</div>
+            </div>
+            <div class="answer-toggle">
+                <label class="toggle-switch">
+                    <input type="checkbox" ${studyShowAnswer ? 'checked' : ''} onchange="toggleShowAnswer(this.checked)">
+                    <span class="toggle-slider"></span>
+                </label>
+                <span class="answer-toggle-label">Show Answer</span>
+            </div>
+            <ul class="choices-list">${choicesHtml}</ul>
+            ${answerTagsHtml}
+            ${editBtn}
+            ${overrideEditorHtml}
+            ${revealed && q.logic ? `<div class="explanation"><div class="explanation-title">Explanation</div><p>${escapeHtml(q.logic)}</p></div>` : ''}
+            <div class="note-section">
+                <div class="note-header">
+                    <span class="note-label">Notes</span>
+                    <span class="note-saved" id="note-saved-${q.id}">Saved</span>
+                </div>
+                <textarea class="note-textarea" placeholder="Write your notes here..." oninput="autoSaveNote(${q.id}, this.value)">${escapeHtml(q.note || '')}</textarea>
+            </div>
+        </div>`;
+
+    document.getElementById('study-content').innerHTML = html;
+}
+
+function toggleShowAnswer(checked) {
+    studyShowAnswer = checked;
+    if (checked) {
+        studyAnswerRevealed = true;
+        saveStudyAnswer();
+    }
+    renderStudyQuestion();
+}
+
+function studySelectChoice(letter, isMulti) {
+    if (studyAnswerRevealed || studyShowAnswer) return;
+    if (isMulti) {
+        const idx = studySelectedChoices.indexOf(letter);
+        if (idx >= 0) studySelectedChoices.splice(idx, 1);
+        else studySelectedChoices.push(letter);
+        if (studySelectedChoices.length === studyCurrentQ.answer.length) {
+            studyAnswerRevealed = true;
+            saveStudyAnswer();
+        }
+    } else {
+        studySelectedChoices = [letter];
+        studyAnswerRevealed = true;
+        saveStudyAnswer();
+    }
+    renderStudyQuestion();
+}
+
+function saveStudyAnswer() {
+    if (!studyCurrentQ) return;
+    const answerSet = new Set(studyCurrentQ.answer);
+    const isCorrect = studySelectedChoices.length === studyCurrentQ.answer.length &&
+        studySelectedChoices.every(s => answerSet.has(s));
+    fetch(`/api/questions/${studyCurrentQ.id}/study-answer`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_answer: studySelectedChoices, is_correct: isCorrect }),
+    });
+}
+
+function autoSaveNote(qid, value) {
+    if (noteTimers[qid]) clearTimeout(noteTimers[qid]);
+    noteTimers[qid] = setTimeout(async () => {
+        await fetch(`/api/questions/${qid}/note`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ content: value }),
+        });
+        const el = document.getElementById(`note-saved-${qid}`);
+        if (el) { el.classList.add('show'); setTimeout(() => el.classList.remove('show'), 1500); }
+    }, 600);
+}
+
+function studyNav(dir) {
+    currentStudyIdx += dir;
+    if (currentStudyIdx < 0) currentStudyIdx = 0;
+    if (currentStudyIdx >= filteredIds.length) currentStudyIdx = filteredIds.length - 1;
+    loadStudyQuestion();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function jumpToQuestion() {
+    const input = document.getElementById('jump-input');
+    const num = parseInt(input.value);
+    if (!num) return;
+    const idx = filteredIds.findIndex(id => { const q = questionList.find(x => x.id === id); return q && q.number === num; });
+    if (idx >= 0) { currentStudyIdx = idx; loadStudyQuestion(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+    input.value = '';
+}
+
+async function toggleStar(qid, btn) {
+    const res = await fetch(`/api/questions/${qid}/star`, { method: 'POST' });
+    const data = await res.json();
+    if (data.starred) { starredSet.add(qid); btn.classList.add('star-active'); btn.textContent = '★'; }
+    else { starredSet.delete(qid); btn.classList.remove('star-active'); btn.textContent = '☆'; }
+    document.getElementById('home-starred').textContent = starredSet.size;
+    if (studyCurrentQ) studyCurrentQ.starred = data.starred;
+    if (showStarredOnly) { updateFilteredList(); if (filteredIds.length > 0) loadStudyQuestion(); else { document.getElementById('study-content').innerHTML = '<div class="loading"><p>No starred questions.</p></div>'; document.getElementById('study-nav').style.display = 'none'; } }
+}
+
+function toggleTranslation(btn) {
+    showTranslation = !showTranslation;
+    document.querySelectorAll('.tw-text').forEach(el => el.classList.toggle('show', showTranslation));
+    if (btn) btn.classList.toggle('active', showTranslation);
+    document.getElementById('global-translate').classList.toggle('active', showTranslation);
+}
+
+function toggleGlobalTranslate() { toggleTranslation(null); loadStudyQuestion(); }
+
+function toggleStarredFilter() {
+    showStarredOnly = !showStarredOnly;
+    document.getElementById('filter-starred').classList.toggle('active', showStarredOnly);
+    currentStudyIdx = 0;
+    updateFilteredList();
+    loadStudyQuestion();
+}
+
+// ─── List View ─────────────────────────────────────────
+async function loadListView() {
+    if (!listAllQuestions) {
+        const res = await fetch('/api/questions/full');
+        listAllQuestions = await res.json();
+    }
+    renderListView();
+}
+
+function setListFilter(f) {
+    listFilter = f;
+    listPage = 0;
+    listExpandedId = null;
+    renderListView();
+}
+
+function getFilteredListItems() {
+    if (!listAllQuestions) return [];
+    if (listFilter === 'starred') return listAllQuestions.filter(q => q.starred);
+    return listAllQuestions;
+}
+
+function toggleListTranslate() {
+    listShowTranslation = !listShowTranslation;
+    document.getElementById('list-translate').classList.toggle('active', listShowTranslation);
+    renderListView();
+}
+
+function renderListView() {
+    const items = getFilteredListItems();
+    const totalPages = Math.max(1, Math.ceil(items.length / LIST_PAGE_SIZE));
+    if (listPage >= totalPages) listPage = totalPages - 1;
+    const start = listPage * LIST_PAGE_SIZE;
+    const pageItems = items.slice(start, start + LIST_PAGE_SIZE);
+
+    // Filters (only reset filter chips, not translate chip)
+    document.querySelectorAll('.list-filters .chip:not(.chip-tw)').forEach(c => c.classList.remove('active'));
+    const filterBtn = document.getElementById(`list-filter-${listFilter}`);
+    if (filterBtn) filterBtn.classList.add('active');
+    document.getElementById('list-translate').classList.toggle('active', listShowTranslation);
+
+    // Pagination
+    let pagHtml = `<span class="pagination-info">${items.length} questions</span>`;
+    pagHtml += `<button class="page-btn" onclick="listPage=0;renderListView()" ${listPage === 0 ? 'disabled' : ''}>«</button>`;
+    pagHtml += `<button class="page-btn" onclick="listPage--;renderListView()" ${listPage === 0 ? 'disabled' : ''}>‹</button>`;
+    pagHtml += `<span class="pagination-info">Page ${listPage + 1} / ${totalPages}</span>`;
+    pagHtml += `<button class="page-btn" onclick="listPage++;renderListView()" ${listPage >= totalPages - 1 ? 'disabled' : ''}>›</button>`;
+    pagHtml += `<button class="page-btn" onclick="listPage=${totalPages - 1};renderListView()" ${listPage >= totalPages - 1 ? 'disabled' : ''}>»</button>`;
+    document.getElementById('list-pagination').innerHTML = pagHtml;
+
+    // List items
+    const tw = listShowTranslation;
+    let html = '';
+    for (const q of pageItems) {
+        const isExpanded = listExpandedId === q.id;
+        const answerSet = new Set(q.answer);
+        const answerText = q.answer.join(', ');
+
+        let detailHtml = '';
+        if (isExpanded) {
+            const letters = Object.keys(q.choices_en).sort();
+            let choicesDetail = '';
+            for (const letter of letters) {
+                const isCor = answerSet.has(letter);
+                let cls = 'review-choice';
+                let tag = '';
+                if (isCor) { cls += ' is-correct'; tag = '<span class="review-choice-tag correct-tag">Answer</span>'; }
+                const twText = tw && q.choices_tw && q.choices_tw[letter] ? `<div class="tw-text show">${escapeHtml(q.choices_tw[letter])}</div>` : '';
+                choicesDetail += `<div class="${cls}"><span class="choice-letter">${letter}</span><div style="flex:1"><div>${escapeHtml(q.choices_en[letter])}${tag}</div>${twText}</div></div>`;
+            }
+            const twQuestion = tw && q.question_tw ? `<div class="tw-text show">${escapeHtml(q.question_tw)}</div>` : '';
+            const listOrigAns = q.original_answer || [];
+            const listHasOverride = q.override !== null && q.override !== undefined;
+            const listFinalAns = listHasOverride ? q.override.previous : q.answer;
+            const listCommunityDiffers = listOrigAns.length > 0 && JSON.stringify([...listOrigAns].sort()) !== JSON.stringify([...listFinalAns].sort());
+            let listTagsHtml = '';
+            if (listCommunityDiffers) listTagsHtml += `<div class="answer-diff-tag" style="margin-top:12px">⚠ Community: ${listOrigAns.join(', ')} → Final: ${listFinalAns.join(', ')}</div>`;
+            if (listHasOverride) listTagsHtml += `<div class="override-tag" style="margin-top:8px">✏ User corrected: ${q.override.previous.join(', ')} → ${q.override.answer.join(', ')}</div>`;
+            detailHtml = `
+                <div class="list-detail">
+                    <div class="question-text" style="margin:12px 0 16px"><div>${escapeHtml(q.question_en)}</div>${twQuestion}</div>
+                    ${choicesDetail}
+                    ${listTagsHtml}
+                    ${q.logic ? `<div class="explanation" style="margin-top:12px"><div class="explanation-title">Explanation</div><p>${escapeHtml(q.logic)}</p></div>` : ''}
+                    ${q.note ? `<div style="margin-top:12px;padding:10px 14px;background:var(--bg);border-radius:var(--radius-sm);font-size:0.85rem;color:var(--text2)"><strong>Notes:</strong> ${escapeHtml(q.note)}</div>` : ''}
+                    <div style="margin-top:12px;display:flex;gap:8px">
+                        <button class="icon-btn ${q.starred ? 'star-active' : ''}" onclick="toggleStarFromList(${q.id}, this)">${q.starred ? '★' : '☆'}</button>
+                        <button class="btn btn-outline" style="font-size:0.82rem;padding:6px 14px" onclick="goToStudyQuestion(${q.number})">Open in Study →</button>
+                    </div>
+                </div>`;
+        }
+
+        const rowOrigAns = q.original_answer || [];
+        const rowHasOverride = q.override !== null && q.override !== undefined;
+        const rowFinalAns = rowHasOverride ? q.override.previous : q.answer;
+        const rowAnsDiffer = rowOrigAns.length > 0 && JSON.stringify([...rowOrigAns].sort()) !== JSON.stringify([...rowFinalAns].sort());
+        html += `
+            <div class="list-item ${isExpanded ? 'expanded' : ''}" id="list-item-${q.id}">
+                <div class="list-item-row" onclick="toggleListExpand(${q.id})">
+                    <span class="list-q-num">${q.number}</span>
+                    <span class="list-q-text">${escapeHtml(q.question_en)}</span>
+                    <span style="font-size:0.75rem;color:var(--primary);font-weight:700;white-space:nowrap">Ans: ${answerText}</span>
+                    ${rowHasOverride ? '<span style="color:#1d4ed8;font-size:0.72rem;font-weight:700" title="User corrected answer">✏</span>' : ''}
+                    ${rowAnsDiffer ? '<span style="color:var(--warning);font-size:0.72rem;font-weight:700" title="Community answer differs from final answer">⚠</span>' : ''}
+                    ${q.starred ? '<span class="list-star">★</span>' : ''}
+                    ${q.note ? '<span style="color:var(--text3);font-size:0.75rem">📝</span>' : ''}
+                    <span class="list-expand-icon">▼</span>
+                </div>
+                ${detailHtml}
+            </div>`;
+    }
+    document.getElementById('list-content').innerHTML = html || '<p style="text-align:center;color:var(--text2);padding:40px">No questions match this filter.</p>';
+}
+
+function toggleListExpand(id) {
+    listExpandedId = listExpandedId === id ? null : id;
+    renderListView();
+}
+
+async function toggleStarFromList(qid, btn) {
+    const res = await fetch(`/api/questions/${qid}/star`, { method: 'POST' });
+    const data = await res.json();
+    if (data.starred) { starredSet.add(qid); } else { starredSet.delete(qid); }
+    document.getElementById('home-starred').textContent = starredSet.size;
+    if (listAllQuestions) { const q = listAllQuestions.find(x => x.id === qid); if (q) q.starred = data.starred; }
+    renderListView();
+}
+
+function goToStudyQuestion(num) {
+    const idx = filteredIds.findIndex(id => { const q = questionList.find(x => x.id === id); return q && q.number === num; });
+    if (idx >= 0) { currentStudyIdx = idx; }
+    switchTab('study');
+}
+
+// ─── Exam Mode ─────────────────────────────────────────
+async function startExam() {
+    document.getElementById('exam-start-view').style.display = 'none';
+    document.getElementById('exam-active-view').style.display = 'block';
+    document.getElementById('exam-results-view').style.display = 'none';
+    const res = await fetch('/api/exam/start', { method: 'POST' });
+    examData = await res.json();
+    examId = examData.exam_id;
+    currentExamIdx = 0; examAnswers = {}; examTimeLeft = 180 * 60;
+    buildExamNavGrid(); renderExamQuestion(); startExamTimer();
+}
+
+function buildExamNavGrid() {
+    const grid = document.getElementById('exam-nav-grid'); grid.innerHTML = '';
+    for (let i = 0; i < examData.questions.length; i++) {
+        const btn = document.createElement('button');
+        btn.className = 'q-nav-btn' + (i === 0 ? ' current' : '');
+        btn.textContent = i + 1;
+        btn.onclick = () => { currentExamIdx = i; renderExamQuestion(); };
+        grid.appendChild(btn);
+    }
+}
+
+function updateExamNavGrid() {
+    document.querySelectorAll('.q-nav-btn').forEach((btn, i) => {
+        btn.classList.toggle('current', i === currentExamIdx);
+        const qid = examData.questions[i].id;
+        btn.classList.toggle('answered', !!examAnswers[qid] && examAnswers[qid].length > 0);
+    });
+}
+
+function renderExamQuestion() {
+    const q = examData.questions[currentExamIdx]; const total = examData.questions.length;
+    const isMulti = q.answer.length > 1; const selectedSet = new Set(examAnswers[q.id] || []);
+    const letters = Object.keys(q.choices_en).sort();
+    document.getElementById('exam-indicator').textContent = `Q ${currentExamIdx + 1} / ${total}`;
+    document.getElementById('exam-progress-fill').style.width = `${((currentExamIdx + 1) / total * 100)}%`;
+    let choicesHtml = '';
+    for (const letter of letters) {
+        choicesHtml += `<li class="choice-item ${selectedSet.has(letter) ? 'selected' : ''}" onclick="examSelectChoice(${q.id}, '${letter}', ${isMulti})"><div class="choice-content"><span class="choice-letter">${letter}</span><div class="choice-text-wrap">${escapeHtml(q.choices_en[letter] || '')}</div></div></li>`;
+    }
+    document.getElementById('exam-question-content').innerHTML = `<div class="question-card"><div class="question-header"><div class="question-title">Question ${currentExamIdx + 1}</div></div><div class="question-text">${escapeHtml(q.question_en)}</div>${isMulti ? `<div class="multi-select-hint">Select ${q.answer.length} answers</div>` : ''}<ul class="choices-list">${choicesHtml}</ul></div>`;
+    document.getElementById('exam-prev').disabled = currentExamIdx === 0;
+    document.getElementById('exam-next').disabled = currentExamIdx >= total - 1;
+    updateExamNavGrid();
+}
+
+function examSelectChoice(qid, letter, isMulti) {
+    if (!examAnswers[qid]) examAnswers[qid] = [];
+    const idx = examAnswers[qid].indexOf(letter);
+    if (isMulti) { if (idx >= 0) examAnswers[qid].splice(idx, 1); else examAnswers[qid].push(letter); }
+    else { examAnswers[qid] = [letter]; }
+    renderExamQuestion();
+}
+
+function examNav(dir) {
+    currentExamIdx += dir;
+    if (currentExamIdx < 0) currentExamIdx = 0;
+    if (currentExamIdx >= examData.questions.length) currentExamIdx = examData.questions.length - 1;
+    renderExamQuestion(); window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function startExamTimer() {
+    if (examTimerInterval) clearInterval(examTimerInterval);
+    examTimerInterval = setInterval(() => {
+        examTimeLeft--;
+        if (examTimeLeft <= 0) { clearInterval(examTimerInterval); examTimeLeft = 0; submitExam(); return; }
+        const h = Math.floor(examTimeLeft / 3600), m = Math.floor((examTimeLeft % 3600) / 60), s = examTimeLeft % 60;
+        const el = document.getElementById('exam-timer');
+        el.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+        el.className = 'timer' + (examTimeLeft < 300 ? ' danger' : examTimeLeft < 600 ? ' warning' : '');
+    }, 1000);
+}
+
+function confirmSubmitExam() {
+    const total = examData.questions.length;
+    const answered = Object.keys(examAnswers).filter(k => examAnswers[k].length > 0).length;
+    const unanswered = total - answered;
+    if (confirm(unanswered > 0 ? `還有 ${unanswered} 題未作答，確定交卷？` : '確定要交卷嗎？')) submitExam();
+}
+
+async function submitExam() {
+    if (examTimerInterval) clearInterval(examTimerInterval);
+    const timeSpent = 180 * 60 - examTimeLeft;
+    const answers = examData.questions.map(q => ({ question_id: q.id, user_answer: examAnswers[q.id] || [], correct_answer: q.answer, choices_shown: q.choices_en }));
+    const res = await fetch(`/api/exam/${examId}/submit`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ answers, time_spent_seconds: timeSpent }) });
+    showExamResults(await res.json());
+}
+
+function showExamResults(result) {
+    document.getElementById('exam-active-view').style.display = 'none';
+    document.getElementById('exam-results-view').style.display = 'block';
+    const pct = result.score; const mins = Math.floor(result.time_spent_seconds / 60); const secs = result.time_spent_seconds % 60;
+    const wrongResults = result.results.filter(r => !r.is_correct);
+    let cardsHtml = '';
+    if (wrongResults.length > 0) {
+        cardsHtml = `<h3 style="margin:28px 0 16px;font-weight:700">Wrong Answers (${wrongResults.length})</h3>`;
+        for (const wr of wrongResults) {
+            const q = examData.questions.find(x => x.id === wr.question_id);
+            if (!q) continue;
+            cardsHtml += buildReviewCard({ questionId: q.id, number: q.number, questionEn: q.question_en, choices: q.choices_en, userAnswer: wr.user_answer, correctAnswer: wr.correct_answer, isCorrect: false, starred: starredSet.has(q.id), logic: q.logic || '' });
+        }
+    }
+    document.getElementById('exam-results-view').innerHTML = `
+        <div class="results-card"><h2>Exam Complete</h2><div class="score-big ${pct >= 70 ? 'pass' : 'fail'}">${pct}%</div>
+        <div class="stats-row"><div class="stat-item"><div class="stat-value">${result.correct_count} / ${result.total}</div><div class="stat-label">Correct</div></div><div class="stat-item"><div class="stat-value">${mins}m ${secs}s</div><div class="stat-label">Time Spent</div></div><div class="stat-item"><div class="stat-value">${wrongResults.length}</div><div class="stat-label">Wrong</div></div></div></div>
+        ${cardsHtml}<div style="text-align:center;margin-top:28px"><button class="btn btn-outline" style="margin-right:12px" onclick="goHome()">Home</button><button class="btn btn-primary" onclick="resetExam()">Try Again</button></div>`;
+}
+
+function resetExam() {
+    if (examTimerInterval) clearInterval(examTimerInterval);
+    document.getElementById('exam-start-view').style.display = 'block';
+    document.getElementById('exam-active-view').style.display = 'none';
+    document.getElementById('exam-results-view').style.display = 'none';
+}
+
+// ─── History ───────────────────────────────────────────
+async function loadHistory() {
+    const res = await fetch('/api/exam/history'); const records = await res.json();
+    if (records.length === 0) { document.getElementById('history-content').innerHTML = '<p style="color:var(--text2);text-align:center;padding:40px">No exam records yet.</p>'; return; }
+    let rows = '';
+    for (const r of records) {
+        const date = new Date(r.started_at).toLocaleString(); const pct = r.score; const pass = pct >= 70; const mins = Math.floor(r.time_spent_seconds / 60);
+        rows += `<tr><td>${date}</td><td><span class="badge ${pass ? 'badge-pass' : 'badge-fail'}">${pct}%</span></td><td>${r.correct_count} / ${r.total_questions}</td><td>${mins} min</td><td><button class="btn-ghost" onclick="viewExamDetail(${r.id})">Details →</button></td></tr>`;
+    }
+    document.getElementById('history-content').innerHTML = `<table class="history-table"><thead><tr><th>Date</th><th>Score</th><th>Correct</th><th>Time</th><th></th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+async function viewExamDetail(eid) {
+    const res = await fetch(`/api/exam/${eid}/details`); const data = await res.json();
+    const pct = data.record.score; const wrong = data.answers.filter(a => !a.is_correct); const mins = Math.floor(data.record.time_spent_seconds / 60);
+    let html = `<button class="btn btn-outline" style="margin-bottom:16px" onclick="loadHistory()">← Back</button>`;
+    html += `<div class="results-card" style="margin-bottom:24px"><h2>Exam #${eid}</h2><div class="score-big ${pct >= 70 ? 'pass' : 'fail'}">${pct}%</div><div class="stats-row"><div class="stat-item"><div class="stat-value">${data.record.correct_count} / ${data.record.total_questions}</div><div class="stat-label">Correct</div></div><div class="stat-item"><div class="stat-value">${mins} min</div><div class="stat-label">Time Spent</div></div><div class="stat-item"><div class="stat-value">${wrong.length}</div><div class="stat-label">Wrong</div></div></div></div>`;
+    if (wrong.length === 0) { html += '<p style="color:var(--success);text-align:center;padding:20px">Perfect score!</p>'; }
+    else {
+        html += `<h3 style="margin-bottom:16px;font-weight:700">Wrong Answers (${wrong.length})</h3>`;
+        for (const a of wrong) { html += buildReviewCard({ questionId: a.question_id, number: a.number, questionEn: a.question_en, choices: a.choices_shown || a.orig_choices_en, userAnswer: a.user_answer, correctAnswer: a.correct_answer, isCorrect: false, starred: a.starred, logic: a.logic || '' }); }
+    }
+    document.getElementById('history-content').innerHTML = html;
+}
+
+// ─── Review Card ───────────────────────────────────────
+function buildReviewCard({ questionId, number, questionEn, choices, userAnswer, correctAnswer, isCorrect, starred, logic }) {
+    const userSet = new Set(userAnswer); const correctSet = new Set(correctAnswer);
+    const letters = Object.keys(choices).sort(); const isStarred = starred || starredSet.has(questionId);
+    let choicesHtml = '';
+    for (const letter of letters) {
+        const isCor = correctSet.has(letter); const isUser = userSet.has(letter); const isWrong = isUser && !isCor;
+        let cls = 'review-choice'; let tag = '';
+        if (isCor) { cls += ' is-correct'; tag = isUser ? '<span class="review-choice-tag correct-tag">Correct</span>' : '<span class="review-choice-tag correct-tag">Answer</span>'; }
+        else if (isWrong) { cls += ' is-wrong-pick'; tag = '<span class="review-choice-tag wrong-tag">Your pick</span>'; }
+        choicesHtml += `<div class="${cls}"><span class="choice-letter">${letter}</span><div style="flex:1">${escapeHtml(choices[letter])}${tag}</div></div>`;
+    }
+    return `<div class="review-card"><div class="review-card-header"><div class="review-card-left"><span class="review-q-num">Q${number}</span><span class="review-result-badge ${isCorrect ? 'correct' : 'wrong'}">${isCorrect ? 'Correct' : 'Wrong'}</span></div><button class="icon-btn ${isStarred ? 'star-active' : ''}" onclick="toggleStarFromReview(${questionId}, this)">${isStarred ? '★' : '☆'}</button></div><div class="question-text" style="margin-bottom:16px">${escapeHtml(questionEn)}</div>${choicesHtml}${logic ? `<div class="explanation" style="margin-top:16px"><div class="explanation-title">Explanation</div><p>${escapeHtml(logic)}</p></div>` : ''}</div>`;
+}
+
+async function toggleStarFromReview(qid, btn) {
+    const res = await fetch(`/api/questions/${qid}/star`, { method: 'POST' }); const data = await res.json();
+    if (data.starred) { starredSet.add(qid); btn.classList.add('star-active'); btn.textContent = '★'; }
+    else { starredSet.delete(qid); btn.classList.remove('star-active'); btn.textContent = '☆'; }
+    document.getElementById('home-starred').textContent = starredSet.size;
+}
+
+// ─── Answer Override ───────────────────────────────────
+function startOverrideEdit() {
+    overrideEditing = true;
+    overrideSelected = [...(studyCurrentQ.answer || [])];
+    renderStudyQuestion();
+}
+
+function cancelOverride() {
+    overrideEditing = false;
+    overrideSelected = [];
+    renderStudyQuestion();
+}
+
+function toggleOverrideChoice(letter) {
+    const idx = overrideSelected.indexOf(letter);
+    if (idx >= 0) overrideSelected.splice(idx, 1);
+    else overrideSelected.push(letter);
+    renderStudyQuestion();
+}
+
+async function saveOverride(qid) {
+    if (overrideSelected.length === 0) return;
+    const res = await fetch(`/api/questions/${qid}/override`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ answer: overrideSelected }),
+    });
+    const data = await res.json();
+    if (data.ok) {
+        studyCurrentQ.override = { answer: data.answer, previous: studyCurrentQ.answer };
+        studyCurrentQ.answer = data.answer;
+        overrideEditing = false;
+        overrideSelected = [];
+        listAllQuestions = null;
+        renderStudyQuestion();
+    }
+}
+
+async function deleteOverride(qid) {
+    if (!confirm('Reset to original answer?')) return;
+    await fetch(`/api/questions/${qid}/override`, { method: 'DELETE' });
+    const res = await fetch(`/api/questions/${qid}`);
+    studyCurrentQ = await res.json();
+    overrideEditing = false;
+    overrideSelected = [];
+    listAllQuestions = null;
+    renderStudyQuestion();
+}
+
+// ─── Copy ──────────────────────────────────────────────
+function copyQuestion(qid, btn) {
+    const q = studyCurrentQ && studyCurrentQ.id === qid ? studyCurrentQ : null;
+    if (!q) return;
+    const letters = Object.keys(q.choices_en).sort();
+    let text = `Q${q.number}. ${q.question_en}\n\n`;
+    for (const letter of letters) {
+        text += `${letter}. ${q.choices_en[letter]}\n`;
+    }
+    navigator.clipboard.writeText(text.trim()).then(() => {
+        btn.classList.add('copied');
+        btn.textContent = '✓';
+        setTimeout(() => { btn.classList.remove('copied'); btn.textContent = '📋'; }, 1500);
+    });
+}
+
+// ─── Helpers ───────────────────────────────────────────
+function escapeHtml(str) { if (!str) return ''; const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
+
+init();
+</script>
+</body>
+</html>
