@@ -50,7 +50,7 @@
         .home-hero h1 { font-size: 2rem; font-weight: 800; margin-bottom: 8px; }
         .home-hero h1 span { color: var(--primary); }
         .home-hero p { color: var(--text2); font-size: 1rem; margin-bottom: 40px; }
-        .home-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; max-width: 640px; margin: 0 auto; }
+        .home-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; max-width: 900px; margin: 0 auto; }
         .home-card { background: var(--white); border-radius: var(--radius); padding: 36px 28px; text-align: center; border: 2px solid var(--border); cursor: pointer; transition: all 0.25s; }
         .home-card:hover { border-color: var(--primary); box-shadow: var(--shadow-lg); transform: translateY(-2px); }
         .home-card-icon { width: 56px; height: 56px; border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 1.6rem; }
@@ -159,7 +159,7 @@
         .link-ext:hover { text-decoration: underline; }
 
         /* Exam */
-        .exam-bar { background: var(--white); padding: 14px 20px; border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 57px; z-index: 50; }
+        .exam-bar { background: var(--white); padding: 14px 20px; border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; position: sticky; top: 57px; z-index: 50; }
         .exam-indicator { font-size: 0.88rem; color: var(--text2); font-weight: 500; }
         .exam-progress-bar { flex: 1; height: 4px; background: var(--border); border-radius: 2px; margin: 0 20px; }
         .exam-progress-fill { height: 100%; background: var(--primary); border-radius: 2px; transition: width 0.3s; }
@@ -252,6 +252,28 @@
         .history-table td { font-size: 0.88rem; border-top: 1px solid var(--border); }
         .history-table tr:hover td { background: #fafbfc; }
 
+        .hist-detail-toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
+        .hist-detail-summary { background: var(--white); border-radius: var(--radius); padding: 20px 24px; box-shadow: var(--shadow); margin-bottom: 16px; text-align: center; }
+        .hist-detail-summary .score-big { font-size: 2.2rem; margin: 8px 0; }
+        .hist-filter-chips { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+        .hist-filter-chips .hint { font-size: 0.78rem; color: var(--text3); margin-right: 4px; }
+        .chip-filter.or { font-size: 0.72rem; color: var(--text3); padding: 4px 6px; border: none; background: transparent; cursor: default; }
+
+        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 20px; }
+        @media (max-width: 900px) { .dashboard-grid { grid-template-columns: 1fr; } }
+        .dashboard-card { background: var(--white); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); text-align: left; }
+        .dashboard-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 16px; color: var(--text); }
+        .dashboard-table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+        .dashboard-table th, .dashboard-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+        .dashboard-table th { color: var(--text2); font-weight: 600; font-size: 0.76rem; text-transform: uppercase; }
+        .dashboard-table tr:hover td { background: #fafbfc; }
+        .delta-pos { color: var(--success); font-weight: 700; }
+        .delta-neg { color: var(--danger); font-weight: 700; }
+        .delta-zero { color: var(--text3); }
+
+        .timer.paused { color: var(--text3); opacity: 0.85; }
+        .exam-pause-hint { font-size: 0.75rem; color: var(--warning); margin-left: 8px; font-weight: 600; }
+
         .loading { text-align: center; padding: 60px; color: var(--text2); }
         .spinner { display: inline-block; width: 28px; height: 28px; border: 3px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.7s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
@@ -277,6 +299,7 @@
             <button class="header-link" data-tab="list" onclick="switchTab('list')">List</button>
             <button class="header-link" data-tab="exam" onclick="switchTab('exam')">Exam</button>
             <button class="header-link" data-tab="history" onclick="switchTab('history')">History</button>
+            <button class="header-link" data-tab="dashboard" onclick="switchTab('dashboard')">Dashboard</button>
         </div>
     </div>
 </div>
@@ -296,6 +319,11 @@
                     <div class="home-card-icon exam">📝</div>
                     <h3>Exam Mode</h3>
                     <p>模擬真實考試，題目與選項隨機排列，180 分鐘計時</p>
+                </div>
+                <div class="home-card" onclick="enterMode('dashboard')">
+                    <div class="home-card-icon study" style="background:#e0e7ff">📊</div>
+                    <h3>Dashboard</h3>
+                    <p>成績趨勢與最常錯題統整（排除零分考試）</p>
                 </div>
             </div>
             <div class="home-stats">
@@ -365,7 +393,11 @@
             <div class="exam-bar">
                 <span class="exam-indicator" id="exam-indicator">Q 1 / 85</span>
                 <div class="exam-progress-bar"><div class="exam-progress-fill" id="exam-progress-fill" style="width:0%"></div></div>
-                <div class="timer" id="exam-timer">03:00:00</div>
+                <button type="button" class="btn btn-outline" id="exam-pause-btn" style="padding:8px 14px;font-size:0.82rem;white-space:nowrap" onclick="toggleExamPause()">暫停</button>
+                <div style="display:flex;align-items:center;flex-wrap:wrap;justify-content:flex-end;gap:4px">
+                    <div class="timer" id="exam-timer">03:00:00</div>
+                    <span class="exam-pause-hint" id="exam-pause-hint" style="display:none">已暫停</span>
+                </div>
             </div>
             <div class="q-nav-grid" id="exam-nav-grid"></div>
             <div id="exam-question-content" class="exam-mode"></div>
@@ -384,6 +416,15 @@
     <div class="container">
         <h2 style="margin-bottom:20px;font-weight:700">Exam History</h2>
         <div id="history-content"><div class="loading"><div class="spinner"></div></div></div>
+    </div>
+</div>
+
+<!-- Dashboard -->
+<div id="panel-dashboard" class="panel">
+    <div class="container">
+        <h2 style="margin-bottom:8px;font-weight:700">Overview Dashboard</h2>
+        <p style="color:var(--text2);font-size:0.88rem;margin-bottom:20px">僅統計「至少答對一題」的已完成考試；不修改任何資料庫紀錄。</p>
+        <div id="dashboard-content"><div class="loading"><div class="spinner"></div></div></div>
     </div>
 </div>
 
@@ -417,6 +458,15 @@ let listShowTranslation = false;
 let noteTimers = {};
 let overrideEditing = false;
 let overrideSelected = [];
+
+let historyDetailData = null;
+let historyDetailEid = null;
+let historyDetailFilters = { all: true, wrong: false, marked: false };
+let historyDetailPage = 0;
+let historyDetailExpandedQid = null;
+let historyDetailTranslate = false;
+let examPaused = false;
+const HIST_DETAIL_PAGE_SIZE = 50;
 
 // ─── Init ──────────────────────────────────────────────
 async function init() {
@@ -470,6 +520,7 @@ function switchTab(tab) {
     if (tab === 'study') loadStudyQuestion();
     if (tab === 'list') loadListView();
     if (tab === 'history') loadHistory();
+    if (tab === 'dashboard') loadDashboard();
 }
 
 // ─── Study Mode ────────────────────────────────────────
@@ -860,6 +911,11 @@ async function startExam() {
     examData = await res.json();
     examId = examData.exam_id;
     currentExamIdx = 0; examAnswers = {}; examMarked = {}; examTimeLeft = 180 * 60;
+    examPaused = false;
+    const pb = document.getElementById('exam-pause-btn');
+    const ph = document.getElementById('exam-pause-hint');
+    if (pb) { pb.textContent = '暫停'; }
+    if (ph) { ph.style.display = 'none'; }
     buildExamNavGrid(); renderExamQuestion(); startExamTimer();
 }
 
@@ -924,15 +980,36 @@ function examNav(dir) {
     renderExamQuestion(); window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+function toggleExamPause() {
+    examPaused = !examPaused;
+    const pb = document.getElementById('exam-pause-btn');
+    const ph = document.getElementById('exam-pause-hint');
+    const el = document.getElementById('exam-timer');
+    if (pb) pb.textContent = examPaused ? '繼續' : '暫停';
+    if (ph) ph.style.display = examPaused ? 'inline' : 'none';
+    if (el) {
+        let cls = 'timer';
+        if (examPaused) cls += ' paused';
+        else if (examTimeLeft < 300) cls += ' danger';
+        else if (examTimeLeft < 600) cls += ' warning';
+        el.className = cls;
+    }
+}
+
 function startExamTimer() {
     if (examTimerInterval) clearInterval(examTimerInterval);
     examTimerInterval = setInterval(() => {
+        if (examPaused) return;
         examTimeLeft--;
         if (examTimeLeft <= 0) { clearInterval(examTimerInterval); examTimeLeft = 0; submitExam(); return; }
         const h = Math.floor(examTimeLeft / 3600), m = Math.floor((examTimeLeft % 3600) / 60), s = examTimeLeft % 60;
         const el = document.getElementById('exam-timer');
         el.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-        el.className = 'timer' + (examTimeLeft < 300 ? ' danger' : examTimeLeft < 600 ? ' warning' : '');
+        let cls = 'timer';
+        if (examPaused) cls += ' paused';
+        else if (examTimeLeft < 300) cls += ' danger';
+        else if (examTimeLeft < 600) cls += ' warning';
+        el.className = cls;
     }, 1000);
 }
 
@@ -1005,24 +1082,247 @@ async function loadHistory() {
     document.getElementById('history-content').innerHTML = `<table class="history-table"><thead><tr><th>Date</th><th>Score</th><th>Correct</th><th>Time</th><th></th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
-async function viewExamDetail(eid) {
-    const res = await fetch(`/api/exam/${eid}/details`); const data = await res.json();
-    const pct = data.record.score; const wrong = data.answers.filter(a => !a.is_correct); const mins = Math.floor(data.record.time_spent_seconds / 60);
-    let html = `<button class="btn btn-outline" style="margin-bottom:16px" onclick="loadHistory()">← Back</button>`;
-    html += `<div class="results-card" style="margin-bottom:24px"><h2>Exam #${eid}</h2><div class="score-big ${pct >= 70 ? 'pass' : 'fail'}">${pct}%</div><div class="stats-row"><div class="stat-item"><div class="stat-value">${data.record.correct_count} / ${data.record.total_questions}</div><div class="stat-label">Correct</div></div><div class="stat-item"><div class="stat-value">${mins} min</div><div class="stat-label">Time Spent</div></div><div class="stat-item"><div class="stat-value">${wrong.length}</div><div class="stat-label">Wrong</div></div></div></div>`;
-    const markedCorrect = data.answers.filter(a => a.marked && a.is_correct);
-    if (markedCorrect.length > 0) {
-        html += `<h3 style="margin:28px 0 16px;font-weight:700">📌 標記回顧（答對仍想複習） (${markedCorrect.length})</h3>`;
-        for (const a of markedCorrect) {
-            html += buildReviewCard({ questionId: a.question_id, number: a.number, questionEn: a.question_en, choices: a.choices_shown || a.orig_choices_en, userAnswer: a.user_answer, correctAnswer: a.correct_answer, isCorrect: true, starred: a.starred, logic: a.logic || '', showMarkedBadge: true });
+function previewText(text, max) {
+    if (!text) return '';
+    const t = String(text).replace(/\s+/g, ' ').trim();
+    return t.length <= max ? t : t.slice(0, max) + '…';
+}
+
+function historyGetFilteredAnswers() {
+    if (!historyDetailData) return [];
+    const arr = historyDetailData.answers;
+    if (historyDetailFilters.all) return arr.slice();
+    const w = historyDetailFilters.wrong;
+    const m = historyDetailFilters.marked;
+    if (!w && !m) return arr.slice();
+    return arr.filter(a => (w && !a.is_correct) || (m && !!a.marked));
+}
+
+function historySetAllFilters() {
+    historyDetailFilters = { all: true, wrong: false, marked: false };
+    historyDetailPage = 0;
+    historyDetailExpandedQid = null;
+    renderHistoryDetailView();
+}
+
+function historyToggleWrongFilter() {
+    if (historyDetailFilters.all) {
+        historyDetailFilters = { all: false, wrong: true, marked: false };
+    } else {
+        historyDetailFilters.wrong = !historyDetailFilters.wrong;
+        if (!historyDetailFilters.wrong && !historyDetailFilters.marked) {
+            historyDetailFilters = { all: true, wrong: false, marked: false };
         }
     }
-    if (wrong.length === 0 && markedCorrect.length === 0) { html += '<p style="color:var(--success);text-align:center;padding:20px">Perfect score!</p>'; }
-    else if (wrong.length > 0) {
-        html += `<h3 style="margin-bottom:16px;font-weight:700">Wrong Answers (${wrong.length})</h3>`;
-        for (const a of wrong) { html += buildReviewCard({ questionId: a.question_id, number: a.number, questionEn: a.question_en, choices: a.choices_shown || a.orig_choices_en, userAnswer: a.user_answer, correctAnswer: a.correct_answer, isCorrect: false, starred: a.starred, logic: a.logic || '', showMarkedBadge: a.marked }); }
+    historyDetailPage = 0;
+    historyDetailExpandedQid = null;
+    renderHistoryDetailView();
+}
+
+function historyToggleMarkedFilter() {
+    if (historyDetailFilters.all) {
+        historyDetailFilters = { all: false, wrong: false, marked: true };
+    } else {
+        historyDetailFilters.marked = !historyDetailFilters.marked;
+        if (!historyDetailFilters.wrong && !historyDetailFilters.marked) {
+            historyDetailFilters = { all: true, wrong: false, marked: false };
+        }
     }
+    historyDetailPage = 0;
+    historyDetailExpandedQid = null;
+    renderHistoryDetailView();
+}
+
+function toggleHistoryDetailExpand(qid) {
+    historyDetailExpandedQid = historyDetailExpandedQid === qid ? null : qid;
+    renderHistoryDetailView();
+}
+
+function toggleHistoryDetailTranslate() {
+    historyDetailTranslate = !historyDetailTranslate;
+    renderHistoryDetailView();
+}
+
+function renderHistoryDetailView() {
+    if (!historyDetailData) return;
+    const eid = historyDetailEid;
+    const rec = historyDetailData.record;
+    const pct = rec.score;
+    const wrongCount = historyDetailData.answers.filter(a => !a.is_correct).length;
+    const mins = Math.floor(rec.time_spent_seconds / 60);
+    const items = historyGetFilteredAnswers();
+    const totalPages = Math.max(1, Math.ceil(items.length / HIST_DETAIL_PAGE_SIZE));
+    if (historyDetailPage >= totalPages) historyDetailPage = totalPages - 1;
+    const start = historyDetailPage * HIST_DETAIL_PAGE_SIZE;
+    const pageItems = items.slice(start, start + HIST_DETAIL_PAGE_SIZE);
+
+    const fa = historyDetailFilters.all;
+    const fw = historyDetailFilters.wrong;
+    const fm = historyDetailFilters.marked;
+
+    let pagHtml = `<span class="pagination-info">${items.length} 題</span>`;
+    pagHtml += `<button class="page-btn" onclick="historyDetailPage=0;renderHistoryDetailView()" ${historyDetailPage === 0 ? 'disabled' : ''}>«</button>`;
+    pagHtml += `<button class="page-btn" onclick="historyDetailPage--;renderHistoryDetailView()" ${historyDetailPage === 0 ? 'disabled' : ''}>‹</button>`;
+    pagHtml += `<span class="pagination-info">Page ${historyDetailPage + 1} / ${totalPages}</span>`;
+    pagHtml += `<button class="page-btn" onclick="historyDetailPage++;renderHistoryDetailView()" ${historyDetailPage >= totalPages - 1 ? 'disabled' : ''}>›</button>`;
+    pagHtml += `<button class="page-btn" onclick="historyDetailPage=${totalPages - 1};renderHistoryDetailView()" ${historyDetailPage >= totalPages - 1 ? 'disabled' : ''}>»</button>`;
+
+    let listHtml = '';
+    const tw = historyDetailTranslate;
+    for (const a of pageItems) {
+        const choices = a.choices_shown || a.orig_choices_en;
+        const userSet = new Set(a.user_answer);
+        const correctSet = new Set(a.correct_answer);
+        const isExpanded = historyDetailExpandedQid === a.question_id;
+        const preview = previewText(a.question_en, 100);
+
+        let detailInner = '';
+        if (isExpanded) {
+            let chHtml = '';
+            const letters = Object.keys(choices).sort();
+            for (const letter of letters) {
+                const isCor = correctSet.has(letter);
+                const isUser = userSet.has(letter);
+                const isWrongPick = isUser && !isCor;
+                let cls = 'review-choice';
+                let tag = '';
+                if (isCor) { cls += ' is-correct'; tag = isUser ? '<span class="review-choice-tag correct-tag">Correct</span>' : '<span class="review-choice-tag correct-tag">Answer</span>'; }
+                else if (isWrongPick) { cls += ' is-wrong-pick'; tag = '<span class="review-choice-tag wrong-tag">Your pick</span>'; }
+                const twCh = tw && a.orig_choices_tw && a.orig_choices_tw[letter] ? `<div class="tw-text show">${escapeHtml(a.orig_choices_tw[letter])}</div>` : '';
+                chHtml += `<div class="${cls}"><span class="choice-letter">${letter}</span><div style="flex:1"><div>${escapeHtml(choices[letter])}${tag}</div>${twCh}</div></div>`;
+            }
+            const twQ = tw && a.question_tw ? `<div class="tw-text show" style="margin-top:8px">${escapeHtml(a.question_tw)}</div>` : '';
+            detailInner = `
+                <div class="list-detail">
+                    <div class="question-text" style="margin:12px 0 16px"><div>${escapeHtml(a.question_en)}</div>${twQ}</div>
+                    ${chHtml}
+                    ${a.logic ? `<div class="explanation" style="margin-top:12px"><div class="explanation-title">Explanation</div><p>${escapeHtml(a.logic)}</p></div>` : ''}
+                    <div style="margin-top:12px;display:flex;gap:8px;align-items:center">
+                        <button class="icon-btn ${a.starred ? 'star-active' : ''}" onclick="event.stopPropagation();toggleStarFromHistoryDetail(${a.question_id}, this)">${a.starred ? '★' : '☆'}</button>
+                    </div>
+                </div>`;
+        }
+
+        listHtml += `
+            <div class="list-item ${isExpanded ? 'expanded' : ''}" id="hist-item-${a.question_id}">
+                <div class="list-item-row" onclick="toggleHistoryDetailExpand(${a.question_id})">
+                    <span class="list-q-num">${a.number}</span>
+                    <span class="list-q-text">${escapeHtml(preview)}</span>
+                    <span class="list-status ${a.is_correct ? 'correct' : 'incorrect'}">${a.is_correct ? '答對' : '答錯'}</span>
+                    ${a.marked ? '<span title="標記回顧" style="font-size:0.85rem">📌</span>' : '<span style="width:18px"></span>'}
+                    ${a.starred ? '<span class="list-star">★</span>' : '<span style="width:14px"></span>'}
+                    <span class="list-expand-icon">▼</span>
+                </div>
+                ${detailInner}
+            </div>`;
+    }
+
+    const html = `
+        <button class="btn btn-outline" style="margin-bottom:16px" onclick="loadHistory()">← 返回列表</button>
+        <div class="hist-detail-summary">
+            <h2 style="font-size:1.1rem;font-weight:700;color:var(--text2)">Exam #${eid}</h2>
+            <div class="score-big ${pct >= 70 ? 'pass' : 'fail'}">${pct}%</div>
+            <div class="stats-row">
+                <div class="stat-item"><div class="stat-value">${rec.correct_count} / ${rec.total_questions}</div><div class="stat-label">答對</div></div>
+                <div class="stat-item"><div class="stat-value">${mins} min</div><div class="stat-label">用時</div></div>
+                <div class="stat-item"><div class="stat-value">${wrongCount}</div><div class="stat-label">答錯</div></div>
+            </div>
+        </div>
+        <div class="hist-detail-toolbar">
+            <div class="hist-filter-chips">
+                <span class="hint">篩選（錯誤與標記為 OR）：</span>
+                <button type="button" class="chip ${fa ? 'active' : ''}" onclick="historySetAllFilters()">全部題目</button>
+                <span class="chip-filter or">|</span>
+                <button type="button" class="chip ${!fa && fw ? 'active' : ''}" onclick="historyToggleWrongFilter()">錯誤題目</button>
+                <button type="button" class="chip ${!fa && fm ? 'active' : ''}" onclick="historyToggleMarkedFilter()">標記回顧</button>
+                <button type="button" class="chip chip-tw ${tw ? 'active' : ''}" id="hist-detail-translate" onclick="toggleHistoryDetailTranslate()">中文翻譯</button>
+            </div>
+            <div class="pagination">${pagHtml}</div>
+        </div>
+        <div id="hist-detail-list">${listHtml || '<p style="text-align:center;color:var(--text2);padding:32px">沒有符合篩選的題目。</p>'}</div>`;
+
     document.getElementById('history-content').innerHTML = html;
+}
+
+async function viewExamDetail(eid) {
+    const res = await fetch(`/api/exam/${eid}/details`);
+    const data = await res.json();
+    if (data.error) return;
+    historyDetailData = data;
+    historyDetailEid = eid;
+    historyDetailFilters = { all: true, wrong: false, marked: false };
+    historyDetailPage = 0;
+    historyDetailExpandedQid = null;
+    historyDetailTranslate = false;
+    renderHistoryDetailView();
+}
+
+async function toggleStarFromHistoryDetail(qid, btn) {
+    const res = await fetch(`/api/questions/${qid}/star`, { method: 'POST' });
+    const data = await res.json();
+    if (data.starred) { starredSet.add(qid); btn.classList.add('star-active'); btn.textContent = '★'; }
+    else { starredSet.delete(qid); btn.classList.remove('star-active'); btn.textContent = '☆'; }
+    document.getElementById('home-starred').textContent = starredSet.size;
+    if (historyDetailData) {
+        const row = historyDetailData.answers.find(x => x.question_id === qid);
+        if (row) row.starred = data.starred;
+    }
+    if (listAllQuestions) {
+        const q = listAllQuestions.find(x => x.id === qid);
+        if (q) q.starred = data.starred;
+    }
+    renderHistoryDetailView();
+}
+
+async function loadDashboard() {
+    const el = document.getElementById('dashboard-content');
+    el.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+    const res = await fetch('/api/dashboard/stats');
+    const data = await res.json();
+    const trend = data.exam_trend || [];
+    const wrongFreq = (data.wrong_frequency || []).slice(0, 40);
+
+    if (trend.length === 0) {
+        el.innerHTML = '<p style="color:var(--text2);text-align:center;padding:40px">尚無符合條件的考試紀錄（需「已完成」且「至少答對一題」）。</p>';
+        return;
+    }
+
+    let trendRows = '';
+    for (const ex of trend) {
+        const dt = new Date(ex.started_at).toLocaleString();
+        let deltaCell = '—';
+        if (ex.delta_from_previous != null) {
+            const d = ex.delta_from_previous;
+            const cls = d > 0 ? 'delta-pos' : d < 0 ? 'delta-neg' : 'delta-zero';
+            deltaCell = `<span class="${cls}">${d > 0 ? '+' : ''}${d}%</span>`;
+        }
+        trendRows += `<tr><td>${dt}</td><td><strong>${ex.score}%</strong></td><td>${ex.correct_count} / ${ex.total_questions}</td><td>${deltaCell}</td></tr>`;
+    }
+
+    let wrongRows = '';
+    for (const w of wrongFreq) {
+        wrongRows += `<tr><td>Q${w.number}</td><td><strong>${w.wrong_count}</strong> 次</td></tr>`;
+    }
+
+    el.innerHTML = `
+        <div class="dashboard-grid">
+            <div class="dashboard-card">
+                <h3>每次考試分數與進步幅度</h3>
+                <p style="font-size:0.8rem;color:var(--text3);margin:-8px 0 12px">相較於上一場符合條件的考試；已排除零分考試。</p>
+                <table class="dashboard-table">
+                    <thead><tr><th>日期</th><th>分數</th><th>答對</th><th>較前一次</th></tr></thead>
+                    <tbody>${trendRows}</tbody>
+                </table>
+            </div>
+            <div class="dashboard-card">
+                <h3>錯最多次的題目（Top 40）</h3>
+                <p style="font-size:0.8rem;color:var(--text3);margin:-8px 0 12px">僅統計符合條件考試中的答錯次數。</p>
+                <table class="dashboard-table">
+                    <thead><tr><th>題號</th><th>答錯次數</th></tr></thead>
+                    <tbody>${wrongRows || '<tr><td colspan="2" style="color:var(--text3)">無答錯紀錄</td></tr>'}</tbody>
+                </table>
+            </div>
+        </div>`;
 }
 
 // ─── Review Card ───────────────────────────────────────
