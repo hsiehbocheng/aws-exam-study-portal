@@ -3,11 +3,33 @@ import json
 import random
 import sqlite3
 from datetime import datetime, timezone
+from pathlib import Path
 
 from flask import Flask, g, jsonify, render_template, request
 
 app = Flask(__name__)
 DB_PATH = "quiz.db"
+
+
+def _migrate_exam_marked_column():
+    """Ensure exam_answers.marked exists (older DBs)."""
+    path = Path(__file__).resolve().parent / DB_PATH
+    if not path.exists():
+        return
+    conn = sqlite3.connect(path)
+    try:
+        cur = conn.execute("PRAGMA table_info(exam_answers)")
+        cols = {row[1] for row in cur.fetchall()}
+        if "marked" not in cols:
+            conn.execute(
+                "ALTER TABLE exam_answers ADD COLUMN marked INTEGER NOT NULL DEFAULT 0"
+            )
+            conn.commit()
+    finally:
+        conn.close()
+
+
+_migrate_exam_marked_column()
 
 
 def get_db() -> sqlite3.Connection:
@@ -321,15 +343,24 @@ def submit_exam(exam_id: int):
         correct_ans = sorted(item["correct_answer"])
         is_correct = user_ans == correct_ans
         choices_shown = json.dumps(item.get("choices_shown", {}), ensure_ascii=False)
+        marked = 1 if item.get("marked") else 0
 
         if is_correct:
             correct_count += 1
 
         db.execute(
             """INSERT INTO exam_answers
-               (exam_id, question_id, user_answer, correct_answer, is_correct, choices_shown)
-               VALUES (?, ?, ?, ?, ?, ?)""",
-            (exam_id, qid, json.dumps(user_ans), json.dumps(correct_ans), is_correct, choices_shown),
+               (exam_id, question_id, user_answer, correct_answer, is_correct, choices_shown, marked)
+               VALUES (?, ?, ?, ?, ?, ?, ?)""",
+            (
+                exam_id,
+                qid,
+                json.dumps(user_ans),
+                json.dumps(correct_ans),
+                is_correct,
+                choices_shown,
+                marked,
+            ),
         )
 
         results.append({
@@ -337,6 +368,7 @@ def submit_exam(exam_id: int):
             "user_answer": user_ans,
             "correct_answer": correct_ans,
             "is_correct": is_correct,
+            "marked": bool(marked),
         })
 
     total = len(answers)
@@ -402,6 +434,7 @@ def exam_details(exam_id: int):
         d["orig_choices_tw"] = json.loads(d["orig_choices_tw"]) if d["orig_choices_tw"] else {}
         d["choice_analysis"] = json.loads(d["choice_analysis"]) if d.get("choice_analysis") else {}
         d["starred"] = d["question_id"] in starred_ids
+        d["marked"] = bool(d.get("marked"))
         answer_list.append(d)
 
     return jsonify({"record": row_to_dict(record), "answers": answer_list})

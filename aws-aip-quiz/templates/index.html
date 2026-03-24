@@ -173,6 +173,12 @@
         .q-nav-btn:hover { border-color: var(--primary); }
         .q-nav-btn.current { border-color: var(--primary); background: var(--primary-light); color: var(--primary); font-weight: 700; }
         .q-nav-btn.answered { background: var(--bg); color: var(--text); border-color: var(--text3); }
+        .q-nav-btn.marked { border-color: #d97706; background: #fffbeb; color: #b45309; font-weight: 600; }
+        .q-nav-btn.marked.current { border-color: #d97706; background: #fef3c7; color: #92400e; }
+        .exam-mark-row { display: flex; justify-content: flex-end; margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border); }
+        .exam-mark-btn { font-size: 0.85rem; padding: 8px 16px; }
+        .exam-mark-btn.active { border-color: #d97706; color: #b45309; background: #fffbeb; }
+        .badge-marked { font-size: 0.72rem; font-weight: 600; color: #b45309; background: #fffbeb; padding: 3px 10px; border-radius: 4px; border: 1px solid rgba(217, 119, 6, 0.35); margin-left: 8px; }
         .exam-start { background: var(--white); border-radius: var(--radius); padding: 48px 36px; text-align: center; max-width: 480px; margin: 48px auto; box-shadow: var(--shadow-md); }
         .exam-start h2 { font-size: 1.5rem; font-weight: 800; margin-bottom: 8px; }
         .exam-start p { color: var(--text2); margin-bottom: 28px; line-height: 1.6; }
@@ -398,6 +404,7 @@ let examData = null;
 let examId = null;
 let currentExamIdx = 0;
 let examAnswers = {};
+let examMarked = {};
 let examTimerInterval = null;
 let examTimeLeft = 180 * 60;
 
@@ -536,15 +543,15 @@ function renderStudyQuestion() {
             </li>`;
     }
 
-    const origAns = q.original_answer || [];
+    const finalAns = q.original_answer || [];
     const hasOverride = q.override !== null && q.override !== undefined;
-    const finalAns = hasOverride ? q.override.previous : q.answer;
-    const communityDiffers = origAns.length > 0 && JSON.stringify([...origAns].sort()) !== JSON.stringify([...finalAns].sort());
+    const examAns = hasOverride ? q.override.previous : q.answer;
+    const answersDiffer = finalAns.length > 0 && JSON.stringify([...finalAns].sort()) !== JSON.stringify([...examAns].sort());
 
     let answerTagsHtml = '';
     if (revealed) {
-        if (communityDiffers) {
-            answerTagsHtml += `<div class="answer-diff-tag">⚠ Community: ${origAns.join(', ')} → Final: ${finalAns.join(', ')}</div>`;
+        if (answersDiffer) {
+            answerTagsHtml += `<div class="answer-diff-tag">⚠ Answer: ${examAns.join(', ')} ≠ Final Answer: ${finalAns.join(', ')}</div>`;
         }
         if (hasOverride) {
             answerTagsHtml += `<div class="override-tag">✏ User corrected: ${q.override.previous.join(', ')} → ${q.override.answer.join(', ')}</div>`;
@@ -781,12 +788,12 @@ function renderListView() {
                 choicesDetail += `<div class="${cls}"><span class="choice-letter">${letter}</span><div style="flex:1"><div>${escapeHtml(q.choices_en[letter])}${tag}</div>${twText}</div></div>`;
             }
             const twQuestion = tw && q.question_tw ? `<div class="tw-text show">${escapeHtml(q.question_tw)}</div>` : '';
-            const listOrigAns = q.original_answer || [];
+            const listFinalAns = q.original_answer || [];
             const listHasOverride = q.override !== null && q.override !== undefined;
-            const listFinalAns = listHasOverride ? q.override.previous : q.answer;
-            const listCommunityDiffers = listOrigAns.length > 0 && JSON.stringify([...listOrigAns].sort()) !== JSON.stringify([...listFinalAns].sort());
+            const listExamAns = listHasOverride ? q.override.previous : q.answer;
+            const listAnsDiffer = listFinalAns.length > 0 && JSON.stringify([...listFinalAns].sort()) !== JSON.stringify([...listExamAns].sort());
             let listTagsHtml = '';
-            if (listCommunityDiffers) listTagsHtml += `<div class="answer-diff-tag" style="margin-top:12px">⚠ Community: ${listOrigAns.join(', ')} → Final: ${listFinalAns.join(', ')}</div>`;
+            if (listAnsDiffer) listTagsHtml += `<div class="answer-diff-tag" style="margin-top:12px">⚠ Answer: ${listExamAns.join(', ')} ≠ Final Answer: ${listFinalAns.join(', ')}</div>`;
             if (listHasOverride) listTagsHtml += `<div class="override-tag" style="margin-top:8px">✏ User corrected: ${q.override.previous.join(', ')} → ${q.override.answer.join(', ')}</div>`;
             detailHtml = `
                 <div class="list-detail">
@@ -802,10 +809,10 @@ function renderListView() {
                 </div>`;
         }
 
-        const rowOrigAns = q.original_answer || [];
+        const rowFinalAns = q.original_answer || [];
         const rowHasOverride = q.override !== null && q.override !== undefined;
-        const rowFinalAns = rowHasOverride ? q.override.previous : q.answer;
-        const rowAnsDiffer = rowOrigAns.length > 0 && JSON.stringify([...rowOrigAns].sort()) !== JSON.stringify([...rowFinalAns].sort());
+        const rowExamAns = rowHasOverride ? q.override.previous : q.answer;
+        const rowAnsDiffer = rowFinalAns.length > 0 && JSON.stringify([...rowFinalAns].sort()) !== JSON.stringify([...rowExamAns].sort());
         html += `
             <div class="list-item ${isExpanded ? 'expanded' : ''}" id="list-item-${q.id}">
                 <div class="list-item-row" onclick="toggleListExpand(${q.id})">
@@ -852,7 +859,7 @@ async function startExam() {
     const res = await fetch('/api/exam/start', { method: 'POST' });
     examData = await res.json();
     examId = examData.exam_id;
-    currentExamIdx = 0; examAnswers = {}; examTimeLeft = 180 * 60;
+    currentExamIdx = 0; examAnswers = {}; examMarked = {}; examTimeLeft = 180 * 60;
     buildExamNavGrid(); renderExamQuestion(); startExamTimer();
 }
 
@@ -872,6 +879,7 @@ function updateExamNavGrid() {
         btn.classList.toggle('current', i === currentExamIdx);
         const qid = examData.questions[i].id;
         btn.classList.toggle('answered', !!examAnswers[qid] && examAnswers[qid].length > 0);
+        btn.classList.toggle('marked', !!examMarked[qid]);
     });
 }
 
@@ -885,10 +893,20 @@ function renderExamQuestion() {
     for (const letter of letters) {
         choicesHtml += `<li class="choice-item ${selectedSet.has(letter) ? 'selected' : ''}" onclick="examSelectChoice(${q.id}, '${letter}', ${isMulti})"><div class="choice-content"><span class="choice-letter">${letter}</span><div class="choice-text-wrap">${escapeHtml(q.choices_en[letter] || '')}</div></div></li>`;
     }
-    document.getElementById('exam-question-content').innerHTML = `<div class="question-card"><div class="question-header"><div class="question-title">Question ${currentExamIdx + 1}</div></div><div class="question-text">${escapeHtml(q.question_en)}</div>${isMulti ? `<div class="multi-select-hint">Select ${q.answer.length} answers</div>` : ''}<ul class="choices-list">${choicesHtml}</ul></div>`;
+    const isMarked = !!examMarked[q.id];
+    document.getElementById('exam-question-content').innerHTML = `<div class="question-card"><div class="question-header"><div class="question-title">Question ${currentExamIdx + 1}</div></div><div class="question-text">${escapeHtml(q.question_en)}</div>${isMulti ? `<div class="multi-select-hint">Select ${q.answer.length} answers</div>` : ''}<ul class="choices-list">${choicesHtml}</ul><div class="exam-mark-row"><button type="button" class="btn btn-outline exam-mark-btn ${isMarked ? 'active' : ''}" onclick="toggleExamMark(${q.id})">${isMarked ? '📌 已標記回顧' : '📌 標記回顧'}</button></div></div>`;
     document.getElementById('exam-prev').disabled = currentExamIdx === 0;
     document.getElementById('exam-next').disabled = currentExamIdx >= total - 1;
     updateExamNavGrid();
+}
+
+function toggleExamMark(qid) {
+    if (examMarked[qid]) {
+        delete examMarked[qid];
+    } else {
+        examMarked[qid] = true;
+    }
+    renderExamQuestion();
 }
 
 function examSelectChoice(qid, letter, isMulti) {
@@ -928,7 +946,13 @@ function confirmSubmitExam() {
 async function submitExam() {
     if (examTimerInterval) clearInterval(examTimerInterval);
     const timeSpent = 180 * 60 - examTimeLeft;
-    const answers = examData.questions.map(q => ({ question_id: q.id, user_answer: examAnswers[q.id] || [], correct_answer: q.answer, choices_shown: q.choices_en }));
+    const answers = examData.questions.map(q => ({
+        question_id: q.id,
+        user_answer: examAnswers[q.id] || [],
+        correct_answer: q.answer,
+        choices_shown: q.choices_en,
+        marked: !!examMarked[q.id],
+    }));
     const res = await fetch(`/api/exam/${examId}/submit`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ answers, time_spent_seconds: timeSpent }) });
     showExamResults(await res.json());
 }
@@ -938,13 +962,22 @@ function showExamResults(result) {
     document.getElementById('exam-results-view').style.display = 'block';
     const pct = result.score; const mins = Math.floor(result.time_spent_seconds / 60); const secs = result.time_spent_seconds % 60;
     const wrongResults = result.results.filter(r => !r.is_correct);
+    const markedCorrect = result.results.filter(r => r.marked && r.is_correct);
     let cardsHtml = '';
+    if (markedCorrect.length > 0) {
+        cardsHtml += `<h3 style="margin:28px 0 16px;font-weight:700">📌 標記回顧（答對仍想複習） (${markedCorrect.length})</h3>`;
+        for (const mr of markedCorrect) {
+            const q = examData.questions.find(x => x.id === mr.question_id);
+            if (!q) continue;
+            cardsHtml += buildReviewCard({ questionId: q.id, number: q.number, questionEn: q.question_en, choices: q.choices_en, userAnswer: mr.user_answer, correctAnswer: mr.correct_answer, isCorrect: true, starred: starredSet.has(q.id), logic: q.logic || '', showMarkedBadge: true });
+        }
+    }
     if (wrongResults.length > 0) {
-        cardsHtml = `<h3 style="margin:28px 0 16px;font-weight:700">Wrong Answers (${wrongResults.length})</h3>`;
+        cardsHtml += `<h3 style="margin:28px 0 16px;font-weight:700">Wrong Answers (${wrongResults.length})</h3>`;
         for (const wr of wrongResults) {
             const q = examData.questions.find(x => x.id === wr.question_id);
             if (!q) continue;
-            cardsHtml += buildReviewCard({ questionId: q.id, number: q.number, questionEn: q.question_en, choices: q.choices_en, userAnswer: wr.user_answer, correctAnswer: wr.correct_answer, isCorrect: false, starred: starredSet.has(q.id), logic: q.logic || '' });
+            cardsHtml += buildReviewCard({ questionId: q.id, number: q.number, questionEn: q.question_en, choices: q.choices_en, userAnswer: wr.user_answer, correctAnswer: wr.correct_answer, isCorrect: false, starred: starredSet.has(q.id), logic: q.logic || '', showMarkedBadge: wr.marked });
         }
     }
     document.getElementById('exam-results-view').innerHTML = `
@@ -977,16 +1010,23 @@ async function viewExamDetail(eid) {
     const pct = data.record.score; const wrong = data.answers.filter(a => !a.is_correct); const mins = Math.floor(data.record.time_spent_seconds / 60);
     let html = `<button class="btn btn-outline" style="margin-bottom:16px" onclick="loadHistory()">← Back</button>`;
     html += `<div class="results-card" style="margin-bottom:24px"><h2>Exam #${eid}</h2><div class="score-big ${pct >= 70 ? 'pass' : 'fail'}">${pct}%</div><div class="stats-row"><div class="stat-item"><div class="stat-value">${data.record.correct_count} / ${data.record.total_questions}</div><div class="stat-label">Correct</div></div><div class="stat-item"><div class="stat-value">${mins} min</div><div class="stat-label">Time Spent</div></div><div class="stat-item"><div class="stat-value">${wrong.length}</div><div class="stat-label">Wrong</div></div></div></div>`;
-    if (wrong.length === 0) { html += '<p style="color:var(--success);text-align:center;padding:20px">Perfect score!</p>'; }
-    else {
+    const markedCorrect = data.answers.filter(a => a.marked && a.is_correct);
+    if (markedCorrect.length > 0) {
+        html += `<h3 style="margin:28px 0 16px;font-weight:700">📌 標記回顧（答對仍想複習） (${markedCorrect.length})</h3>`;
+        for (const a of markedCorrect) {
+            html += buildReviewCard({ questionId: a.question_id, number: a.number, questionEn: a.question_en, choices: a.choices_shown || a.orig_choices_en, userAnswer: a.user_answer, correctAnswer: a.correct_answer, isCorrect: true, starred: a.starred, logic: a.logic || '', showMarkedBadge: true });
+        }
+    }
+    if (wrong.length === 0 && markedCorrect.length === 0) { html += '<p style="color:var(--success);text-align:center;padding:20px">Perfect score!</p>'; }
+    else if (wrong.length > 0) {
         html += `<h3 style="margin-bottom:16px;font-weight:700">Wrong Answers (${wrong.length})</h3>`;
-        for (const a of wrong) { html += buildReviewCard({ questionId: a.question_id, number: a.number, questionEn: a.question_en, choices: a.choices_shown || a.orig_choices_en, userAnswer: a.user_answer, correctAnswer: a.correct_answer, isCorrect: false, starred: a.starred, logic: a.logic || '' }); }
+        for (const a of wrong) { html += buildReviewCard({ questionId: a.question_id, number: a.number, questionEn: a.question_en, choices: a.choices_shown || a.orig_choices_en, userAnswer: a.user_answer, correctAnswer: a.correct_answer, isCorrect: false, starred: a.starred, logic: a.logic || '', showMarkedBadge: a.marked }); }
     }
     document.getElementById('history-content').innerHTML = html;
 }
 
 // ─── Review Card ───────────────────────────────────────
-function buildReviewCard({ questionId, number, questionEn, choices, userAnswer, correctAnswer, isCorrect, starred, logic }) {
+function buildReviewCard({ questionId, number, questionEn, choices, userAnswer, correctAnswer, isCorrect, starred, logic, showMarkedBadge }) {
     const userSet = new Set(userAnswer); const correctSet = new Set(correctAnswer);
     const letters = Object.keys(choices).sort(); const isStarred = starred || starredSet.has(questionId);
     let choicesHtml = '';
@@ -997,7 +1037,8 @@ function buildReviewCard({ questionId, number, questionEn, choices, userAnswer, 
         else if (isWrong) { cls += ' is-wrong-pick'; tag = '<span class="review-choice-tag wrong-tag">Your pick</span>'; }
         choicesHtml += `<div class="${cls}"><span class="choice-letter">${letter}</span><div style="flex:1">${escapeHtml(choices[letter])}${tag}</div></div>`;
     }
-    return `<div class="review-card"><div class="review-card-header"><div class="review-card-left"><span class="review-q-num">Q${number}</span><span class="review-result-badge ${isCorrect ? 'correct' : 'wrong'}">${isCorrect ? 'Correct' : 'Wrong'}</span></div><button class="icon-btn ${isStarred ? 'star-active' : ''}" onclick="toggleStarFromReview(${questionId}, this)">${isStarred ? '★' : '☆'}</button></div><div class="question-text" style="margin-bottom:16px">${escapeHtml(questionEn)}</div>${choicesHtml}${logic ? `<div class="explanation" style="margin-top:16px"><div class="explanation-title">Explanation</div><p>${escapeHtml(logic)}</p></div>` : ''}</div>`;
+    const markedBadge = showMarkedBadge ? '<span class="badge-marked">📌 回顧標記</span>' : '';
+    return `<div class="review-card"><div class="review-card-header"><div class="review-card-left"><span class="review-q-num">Q${number}</span><span class="review-result-badge ${isCorrect ? 'correct' : 'wrong'}">${isCorrect ? 'Correct' : 'Wrong'}</span>${markedBadge}</div><button class="icon-btn ${isStarred ? 'star-active' : ''}" onclick="toggleStarFromReview(${questionId}, this)">${isStarred ? '★' : '☆'}</button></div><div class="question-text" style="margin-bottom:16px">${escapeHtml(questionEn)}</div>${choicesHtml}${logic ? `<div class="explanation" style="margin-top:16px"><div class="explanation-title">Explanation</div><p>${escapeHtml(logic)}</p></div>` : ''}</div>`;
 }
 
 async function toggleStarFromReview(qid, btn) {

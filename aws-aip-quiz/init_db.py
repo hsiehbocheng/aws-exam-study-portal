@@ -88,6 +88,7 @@ def create_tables(conn: sqlite3.Connection):
             correct_answer TEXT NOT NULL, -- JSON array
             is_correct BOOLEAN NOT NULL,
             choices_shown TEXT,          -- JSON: shuffled choices as shown during exam
+            marked INTEGER NOT NULL DEFAULT 0,  -- 1 = user flagged for later review
             FOREIGN KEY (exam_id) REFERENCES exam_records(id),
             FOREIGN KEY (question_id) REFERENCES questions(id)
         );
@@ -129,9 +130,9 @@ def import_data(conn: sqlite3.Connection):
 
         question_en = row[1] or ""
         choices_raw_en = row[2] or ""
-        original_answer_raw = row[3] or ""
+        community_answer_raw = row[3] or ""
         final_answer_raw = row[15] or ""
-        answer_raw = final_answer_raw if final_answer_raw else original_answer_raw
+        answer_raw = community_answer_raw if community_answer_raw else final_answer_raw
         uid = int(row[4]) if row[4] else None
         topic = int(row[6]) if row[6] else None
         link = row[7] or ""
@@ -143,7 +144,7 @@ def import_data(conn: sqlite3.Connection):
         choices_en = parse_choices(choices_raw_en)
         choices_tw = parse_choices(choices_raw_tw)
         answer = parse_answer(str(answer_raw))
-        original_answer = parse_answer(str(original_answer_raw))
+        original_answer = parse_answer(str(final_answer_raw))
         choice_analysis = parse_choice_analysis(choice_analysis_raw)
 
         conn.execute(
@@ -181,6 +182,15 @@ def migrate(conn: sqlite3.Connection):
         conn.execute("ALTER TABLE questions ADD COLUMN original_answer TEXT")
         conn.commit()
         print("Migrated: added original_answer column")
+
+    cursor = conn.execute("PRAGMA table_info(exam_answers)")
+    exam_cols = {row[1] for row in cursor.fetchall()}
+    if "marked" not in exam_cols:
+        conn.execute(
+            "ALTER TABLE exam_answers ADD COLUMN marked INTEGER NOT NULL DEFAULT 0"
+        )
+        conn.commit()
+        print("Migrated: added exam_answers.marked column")
 
 
 def main():
