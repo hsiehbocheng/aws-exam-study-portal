@@ -259,17 +259,9 @@
         .hist-filter-chips .hint { font-size: 0.78rem; color: var(--text3); margin-right: 4px; }
         .chip-filter.or { font-size: 0.72rem; color: var(--text3); padding: 4px 6px; border: none; background: transparent; cursor: default; }
 
-        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 20px; }
-        @media (max-width: 900px) { .dashboard-grid { grid-template-columns: 1fr; } }
-        .dashboard-card { background: var(--white); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); text-align: left; }
-        .dashboard-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 16px; color: var(--text); }
-        .dashboard-table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
-        .dashboard-table th, .dashboard-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); }
-        .dashboard-table th { color: var(--text2); font-weight: 600; font-size: 0.76rem; text-transform: uppercase; }
-        .dashboard-table tr:hover td { background: #fafbfc; }
-        .delta-pos { color: var(--success); font-weight: 700; }
-        .delta-neg { color: var(--danger); font-weight: 700; }
-        .delta-zero { color: var(--text3); }
+        .list-sort-label { font-size: 0.78rem; color: var(--text3); margin-left: 4px; margin-right: 2px; }
+        .list-exam-wrong { font-size: 0.76rem; font-weight: 700; min-width: 48px; text-align: right; color: var(--text2); font-variant-numeric: tabular-nums; }
+        .list-exam-wrong.has-wrong { color: #c2410c; }
 
         .timer.paused { color: var(--text3); opacity: 0.85; }
         .exam-pause-hint { font-size: 0.75rem; color: var(--warning); margin-left: 8px; font-weight: 600; }
@@ -299,7 +291,6 @@
             <button class="header-link" data-tab="list" onclick="switchTab('list')">List</button>
             <button class="header-link" data-tab="exam" onclick="switchTab('exam')">Exam</button>
             <button class="header-link" data-tab="history" onclick="switchTab('history')">History</button>
-            <button class="header-link" data-tab="dashboard" onclick="switchTab('dashboard')">Dashboard</button>
         </div>
     </div>
 </div>
@@ -319,11 +310,6 @@
                     <div class="home-card-icon exam">📝</div>
                     <h3>Exam Mode</h3>
                     <p>模擬真實考試，題目與選項隨機排列，180 分鐘計時</p>
-                </div>
-                <div class="home-card" onclick="enterMode('dashboard')">
-                    <div class="home-card-icon study" style="background:#e0e7ff">📊</div>
-                    <h3>Dashboard</h3>
-                    <p>成績趨勢與最常錯題統整（排除零分考試）</p>
                 </div>
             </div>
             <div class="home-stats">
@@ -365,9 +351,13 @@
     <div class="container">
         <div class="list-toolbar">
             <div class="list-filters">
-                <button class="chip" id="list-filter-all" onclick="setListFilter('all')">All</button>
-                <button class="chip" id="list-filter-starred" onclick="setListFilter('starred')">★ Starred</button>
-                <button class="chip chip-tw" id="list-translate" onclick="toggleListTranslate()">中文翻譯</button>
+                <button type="button" class="chip list-filter-chip" id="list-filter-all" onclick="setListFilter('all')">All</button>
+                <button type="button" class="chip list-filter-chip" id="list-filter-starred" onclick="setListFilter('starred')">★ Starred</button>
+                <span class="list-sort-label">排序</span>
+                <button type="button" class="chip chip-sort" id="list-sort-number" onclick="setListSort('number')">題號</button>
+                <button type="button" class="chip chip-sort" id="list-sort-wrong-desc" onclick="setListSort('wrong_desc')">考試錯誤↓</button>
+                <button type="button" class="chip chip-sort" id="list-sort-wrong-asc" onclick="setListSort('wrong_asc')">考試錯誤↑</button>
+                <button type="button" class="chip chip-tw" id="list-translate" onclick="toggleListTranslate()">中文翻譯</button>
             </div>
             <div class="pagination" id="list-pagination"></div>
         </div>
@@ -419,15 +409,6 @@
     </div>
 </div>
 
-<!-- Dashboard -->
-<div id="panel-dashboard" class="panel">
-    <div class="container">
-        <h2 style="margin-bottom:8px;font-weight:700">Overview Dashboard</h2>
-        <p style="color:var(--text2);font-size:0.88rem;margin-bottom:20px">僅統計「至少答對一題」的已完成考試；不修改任何資料庫紀錄。</p>
-        <div id="dashboard-content"><div class="loading"><div class="spinner"></div></div></div>
-    </div>
-</div>
-
 <script>
 // ─── State ─────────────────────────────────────────────
 let questionList = [];
@@ -451,6 +432,7 @@ let examTimeLeft = 180 * 60;
 
 let listAllQuestions = null;
 let listFilter = 'all';
+let listSortMode = 'number';
 let listPage = 0;
 const LIST_PAGE_SIZE = 50;
 let listExpandedId = null;
@@ -520,7 +502,6 @@ function switchTab(tab) {
     if (tab === 'study') loadStudyQuestion();
     if (tab === 'list') loadListView();
     if (tab === 'history') loadHistory();
-    if (tab === 'dashboard') loadDashboard();
 }
 
 // ─── Study Mode ────────────────────────────────────────
@@ -770,10 +751,8 @@ function toggleStarredFilter() {
 
 // ─── List View ─────────────────────────────────────────
 async function loadListView() {
-    if (!listAllQuestions) {
-        const res = await fetch('/api/questions/full');
-        listAllQuestions = await res.json();
-    }
+    const res = await fetch('/api/questions/full');
+    listAllQuestions = await res.json();
     renderListView();
 }
 
@@ -784,10 +763,27 @@ function setListFilter(f) {
     renderListView();
 }
 
+function setListSort(mode) {
+    listSortMode = mode;
+    listPage = 0;
+    listExpandedId = null;
+    renderListView();
+}
+
 function getFilteredListItems() {
     if (!listAllQuestions) return [];
-    if (listFilter === 'starred') return listAllQuestions.filter(q => q.starred);
-    return listAllQuestions;
+    let items = listFilter === 'starred'
+        ? listAllQuestions.filter(q => q.starred)
+        : [...listAllQuestions];
+    const wc = (q) => (q.exam_wrong_count != null ? Number(q.exam_wrong_count) : 0);
+    if (listSortMode === 'wrong_desc') {
+        items.sort((a, b) => wc(b) - wc(a) || a.number - b.number);
+    } else if (listSortMode === 'wrong_asc') {
+        items.sort((a, b) => wc(a) - wc(b) || a.number - b.number);
+    } else {
+        items.sort((a, b) => a.number - b.number);
+    }
+    return items;
 }
 
 function toggleListTranslate() {
@@ -803,10 +799,13 @@ function renderListView() {
     const start = listPage * LIST_PAGE_SIZE;
     const pageItems = items.slice(start, start + LIST_PAGE_SIZE);
 
-    // Filters (only reset filter chips, not translate chip)
-    document.querySelectorAll('.list-filters .chip:not(.chip-tw)').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.list-filter-chip').forEach(c => c.classList.remove('active'));
     const filterBtn = document.getElementById(`list-filter-${listFilter}`);
     if (filterBtn) filterBtn.classList.add('active');
+    document.querySelectorAll('.chip-sort').forEach(c => c.classList.remove('active'));
+    const sortElId = listSortMode === 'number' ? 'list-sort-number' : listSortMode === 'wrong_desc' ? 'list-sort-wrong-desc' : 'list-sort-wrong-asc';
+    const sortEl = document.getElementById(sortElId);
+    if (sortEl) sortEl.classList.add('active');
     document.getElementById('list-translate').classList.toggle('active', listShowTranslation);
 
     // Pagination
@@ -828,6 +827,7 @@ function renderListView() {
 
         let detailHtml = '';
         if (isExpanded) {
+            const ewDetail = q.exam_wrong_count != null ? Number(q.exam_wrong_count) : 0;
             const letters = Object.keys(q.choices_en).sort();
             let choicesDetail = '';
             for (const letter of letters) {
@@ -848,6 +848,7 @@ function renderListView() {
             if (listHasOverride) listTagsHtml += `<div class="override-tag" style="margin-top:8px">✏ User corrected: ${q.override.previous.join(', ')} → ${q.override.answer.join(', ')}</div>`;
             detailHtml = `
                 <div class="list-detail">
+                    <div style="font-size:0.82rem;color:var(--text3);margin-bottom:10px">模擬考答錯累計：<strong style="color:var(--text)">${ewDetail}</strong> 次（不含「一題都沒對」的考試）</div>
                     <div class="question-text" style="margin:12px 0 16px"><div>${escapeHtml(q.question_en)}</div>${twQuestion}</div>
                     ${choicesDetail}
                     ${listTagsHtml}
@@ -864,12 +865,16 @@ function renderListView() {
         const rowHasOverride = q.override !== null && q.override !== undefined;
         const rowExamAns = rowHasOverride ? q.override.previous : q.answer;
         const rowAnsDiffer = rowFinalAns.length > 0 && JSON.stringify([...rowFinalAns].sort()) !== JSON.stringify([...rowExamAns].sort());
+        const ew = q.exam_wrong_count != null ? Number(q.exam_wrong_count) : 0;
+        const ewCls = ew > 0 ? 'list-exam-wrong has-wrong' : 'list-exam-wrong';
+        const ewLabel = ew > 0 ? `錯×${ew}` : '—';
         html += `
             <div class="list-item ${isExpanded ? 'expanded' : ''}" id="list-item-${q.id}">
                 <div class="list-item-row" onclick="toggleListExpand(${q.id})">
                     <span class="list-q-num">${q.number}</span>
                     <span class="list-q-text">${escapeHtml(q.question_en)}</span>
                     <span style="font-size:0.75rem;color:var(--primary);font-weight:700;white-space:nowrap">Ans: ${answerText}</span>
+                    <span class="${ewCls}" title="模擬考答錯次數；排除未完成與零分（一題都沒對）考試。唯讀統計。">${ewLabel}</span>
                     ${rowHasOverride ? '<span style="color:#1d4ed8;font-size:0.72rem;font-weight:700" title="User corrected answer">✏</span>' : ''}
                     ${rowAnsDiffer ? '<span style="color:var(--warning);font-size:0.72rem;font-weight:700" title="Community answer differs from final answer">⚠</span>' : ''}
                     ${q.starred ? '<span class="list-star">★</span>' : ''}
@@ -1272,57 +1277,6 @@ async function toggleStarFromHistoryDetail(qid, btn) {
         if (q) q.starred = data.starred;
     }
     renderHistoryDetailView();
-}
-
-async function loadDashboard() {
-    const el = document.getElementById('dashboard-content');
-    el.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
-    const res = await fetch('/api/dashboard/stats');
-    const data = await res.json();
-    const trend = data.exam_trend || [];
-    const wrongFreq = (data.wrong_frequency || []).slice(0, 40);
-
-    if (trend.length === 0) {
-        el.innerHTML = '<p style="color:var(--text2);text-align:center;padding:40px">尚無符合條件的考試紀錄（需「已完成」且「至少答對一題」）。</p>';
-        return;
-    }
-
-    let trendRows = '';
-    for (const ex of trend) {
-        const dt = new Date(ex.started_at).toLocaleString();
-        let deltaCell = '—';
-        if (ex.delta_from_previous != null) {
-            const d = ex.delta_from_previous;
-            const cls = d > 0 ? 'delta-pos' : d < 0 ? 'delta-neg' : 'delta-zero';
-            deltaCell = `<span class="${cls}">${d > 0 ? '+' : ''}${d}%</span>`;
-        }
-        trendRows += `<tr><td>${dt}</td><td><strong>${ex.score}%</strong></td><td>${ex.correct_count} / ${ex.total_questions}</td><td>${deltaCell}</td></tr>`;
-    }
-
-    let wrongRows = '';
-    for (const w of wrongFreq) {
-        wrongRows += `<tr><td>Q${w.number}</td><td><strong>${w.wrong_count}</strong> 次</td></tr>`;
-    }
-
-    el.innerHTML = `
-        <div class="dashboard-grid">
-            <div class="dashboard-card">
-                <h3>每次考試分數與進步幅度</h3>
-                <p style="font-size:0.8rem;color:var(--text3);margin:-8px 0 12px">相較於上一場符合條件的考試；已排除零分考試。</p>
-                <table class="dashboard-table">
-                    <thead><tr><th>日期</th><th>分數</th><th>答對</th><th>較前一次</th></tr></thead>
-                    <tbody>${trendRows}</tbody>
-                </table>
-            </div>
-            <div class="dashboard-card">
-                <h3>錯最多次的題目（Top 40）</h3>
-                <p style="font-size:0.8rem;color:var(--text3);margin:-8px 0 12px">僅統計符合條件考試中的答錯次數。</p>
-                <table class="dashboard-table">
-                    <thead><tr><th>題號</th><th>答錯次數</th></tr></thead>
-                    <tbody>${wrongRows || '<tr><td colspan="2" style="color:var(--text3)">無答錯紀錄</td></tr>'}</tbody>
-                </table>
-            </div>
-        </div>`;
 }
 
 // ─── Review Card ───────────────────────────────────────

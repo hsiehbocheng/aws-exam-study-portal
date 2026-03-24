@@ -246,6 +246,17 @@ def get_questions_full():
 
     overrides = get_overrides(db)
 
+    wrong_rows = db.execute(
+        """SELECT ea.question_id, COUNT(*) AS cnt
+           FROM exam_answers ea
+           JOIN exam_records er ON ea.exam_id = er.id
+           WHERE ea.is_correct = 0
+             AND er.finished_at IS NOT NULL
+             AND er.correct_count > 0
+           GROUP BY ea.question_id"""
+    ).fetchall()
+    exam_wrong_map = {r["question_id"]: r["cnt"] for r in wrong_rows}
+
     result = []
     for row in rows:
         d = row_to_dict(row)
@@ -255,6 +266,7 @@ def get_questions_full():
         d["original_answer"] = json.loads(d["original_answer"]) if d.get("original_answer") else d["answer"]
         d["choice_analysis"] = json.loads(d["choice_analysis"]) if d["choice_analysis"] else {}
         d["starred"] = d["id"] in starred_ids
+        d["exam_wrong_count"] = exam_wrong_map.get(d["id"], 0)
         sa = sa_map.get(d["id"])
         d["study_status"] = sa["is_correct"] if sa else None
         d["study_answer"] = json.loads(sa["user_answer"]) if sa else None
@@ -438,64 +450,6 @@ def exam_details(exam_id: int):
         answer_list.append(d)
 
     return jsonify({"record": row_to_dict(record), "answers": answer_list})
-
-
-@app.route("/api/dashboard/stats")
-def dashboard_stats():
-    """Read-only aggregates: exam score trend & wrong-answer frequency.
-
-    Excludes exams with zero correct answers (no progress to compare).
-    Does not modify any stored data.
-    """
-    db = get_db()
-    rows = db.execute(
-        """SELECT * FROM exam_records
-           WHERE finished_at IS NOT NULL AND correct_count > 0
-           ORDER BY started_at ASC"""
-    ).fetchall()
-
-    exam_trend = []
-    prev_score = None
-    for r in rows:
-        d = row_to_dict(r)
-        delta = None
-        if prev_score is not None:
-            delta = round(float(d["score"]) - float(prev_score), 1)
-        exam_trend.append(
-            {
-                "id": d["id"],
-                "started_at": d["started_at"],
-                "score": float(d["score"]),
-                "correct_count": d["correct_count"],
-                "total_questions": d["total_questions"],
-                "delta_from_previous": delta,
-            }
-        )
-        prev_score = float(d["score"])
-
-    exam_ids = [r["id"] for r in rows]
-    wrong_frequency = []
-    if exam_ids:
-        placeholders = ",".join("?" * len(exam_ids))
-        wrong_rows = db.execute(
-            f"""SELECT ea.question_id, q.number, COUNT(*) AS cnt
-                FROM exam_answers ea
-                JOIN questions q ON ea.question_id = q.id
-                WHERE ea.exam_id IN ({placeholders}) AND ea.is_correct = 0
-                GROUP BY ea.question_id
-                ORDER BY cnt DESC, q.number ASC""",
-            exam_ids,
-        ).fetchall()
-        wrong_frequency = [
-            {
-                "question_id": wr["question_id"],
-                "number": wr["number"],
-                "wrong_count": wr["cnt"],
-            }
-            for wr in wrong_rows
-        ]
-
-    return jsonify({"exam_trend": exam_trend, "wrong_frequency": wrong_frequency})
 
 
 if __name__ == "__main__":
